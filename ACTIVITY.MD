@@ -11,7 +11,9 @@ I have worked on A1 and have contributed to the automation workflows, and versio
 - Francisco: https://github.com/doda25-team7/lib-version/pull/3
 I worked on A1, here contributed to feature F11 eleven of automatic version releasing in lib-version.
 - Renyi: https://github.com/doda25-team7/lib-version/pull/1
-- Tobias https://github.com/doda25-team7/app-service/pull/6
+
+- Tobias https://github.com/doda25-team7/app-service/pull/3
+I have worked on A1 and have contributed a versioning strategy for the app-service repository.
 
 ### Week Q2.3 (Nov 24 - )
 - Francisco: https://github.com/doda25-team7/infrastructure/pull/1
