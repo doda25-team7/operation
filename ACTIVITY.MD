@@ -25,6 +25,8 @@ Group meeting on 25 nov
 - Francisco: TBD
 Will work on moving the docker containerization to kubernetes. F1 of the assignment 3
 
+- Maciej: Fixed last assginment(problems with the dashboard): https://github.com/doda25-team7/infrastructure/pull/7
+
 ### Week Q2.5 (Dec 8 - )
 
 ### Week Q2.6 (Dec 15 - )
