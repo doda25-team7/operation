@@ -21,6 +21,9 @@ Worked on all steps of 1.1 setting up provisioning and the infrastructure repo
 - Maciej: https://github.com/doda25-team7/operation/pull/1, https://github.com/doda25-team7/operation/pull/2, https://github.com/doda25-team7/infrastructure/pull/2 ; I worked on improving the previous assignment(updating the README and doin docker compose (F7)). Additionally i implemented steps 13, 14 and 15 of A2
 Group meeting on 25 nov
 - Renyi: https://github.com/doda25-team7/infrastructure/pull/2 I did step 15 and 16 of assignment2. other parts are done by colleagues.
+
+- Tobias: Was not able to make any significant contributions this week due to issues with the understanding and implementing theory from the lectures.
+
 ### Week Q2.4 (Dec 1 - )
 - Francisco: TBD
 Will work on moving the docker containerization to kubernetes. F1 of the assignment 3
@@ -28,6 +31,13 @@ Will work on moving the docker containerization to kubernetes. F1 of the assignm
 - Maciej: Fixed last assginment(problems with the dashboard): https://github.com/doda25-team7/infrastructure/pull/7
 
 - Renyi: I did 1.3 and 1.4 of assignment 2. https://github.com/doda25-team7/infrastructure/pull/3
+
+- Tobias: https://github.com/doda25-team7/infrastructure/pull/4
+Also attempted to fix the problems with 1.3 and 1.4. 
+However, ran into some problems with compatabiility with Linux due too restricted host-only network for virtualbox and an issue with the run join command which also seemed to happen only on my end (might also be linux related but no confirmed)
+Will be adding the fixes to these problems to the readme beginning next week.
+Also made a beginning making sure the code adheres to the A2 tips in 1.6: local provisioning and avoiding shell command.
+
 ### Week Q2.5 (Dec 8 - )
 
 ### Week Q2.6 (Dec 15 - )
