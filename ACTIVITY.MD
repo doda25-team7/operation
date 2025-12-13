@@ -41,7 +41,7 @@ Also made a beginning making sure the code adheres to the A2 tips in 1.6: local 
 - Tess: Spend a couple days trying to setup and debug the kubernetes instance. Made some changes in the cofiguration of Helm https://github.com/doda25-team7/infrastructure/pull/5
 
 ### Week Q2.5 (Dec 8 - )
-- Francisco - working on migrating from docker to kubernetes 
+- Francisco - working on migrating from docker-compose to kubernetes. Changed the Vagrat Ips to mach the virtual box allowed routing. 
 https://github.com/doda25-team7/infrastructure/pull/8
 
 ### Week Q2.6 (Dec 15 - )
