@@ -43,6 +43,7 @@ Also made a beginning making sure the code adheres to the A2 tips in 1.6: local 
 ### Week Q2.5 (Dec 8 - )
 - Francisco - working on migrating from docker-compose to kubernetes. Changed the Vagrat Ips to mach the virtual box allowed routing. 
 https://github.com/doda25-team7/infrastructure/pull/8
+- Tess - looked into the security implications of the Github Action version manager, and as a response to the recommendation, properly pinned the external personal repo we used in model-service https://github.com/doda25-team7/model-service/pull/6
 
 ### Week Q2.6 (Dec 15 - )
 
