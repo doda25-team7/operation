@@ -25,8 +25,8 @@ Group meeting on 25 nov
 - Tobias: Was not able to make any significant contributions this week due to issues with the understanding and implementing theory from the lectures.
 - Tess: Implemented the model training in CI https://github.com/doda25-team7/model-service/pull/5
 ### Week Q2.4 (Dec 1 - )
-- Francisco: TBD
-Will work on moving the docker containerization to kubernetes. F1 of the assignment 3
+- Francisco: Will work on moving the docker containerization to kubernetes. F1 of the assignment 3
+Due to sickness and being blocked by the completion of the previous assignment couldn't finish it.
 
 - Maciej: Fixed last assginment(problems with the dashboard): https://github.com/doda25-team7/infrastructure/pull/7
 
@@ -41,6 +41,12 @@ Also made a beginning making sure the code adheres to the A2 tips in 1.6: local 
 - Tess: Spend a couple days trying to setup and debug the kubernetes instance. Made some changes in the cofiguration of Helm https://github.com/doda25-team7/infrastructure/pull/5
 
 ### Week Q2.5 (Dec 8 - )
+- Francisco - working on migrating from docker-compose to kubernetes. Changed the Vagrat Ips to mach the virtual box allowed routing. 
+https://github.com/doda25-team7/infrastructure/pull/8
+- Tess - looked into the security implications of the Github Action version manager, and as a response to the recommendation, properly pinned the external personal repo we used in model-service https://github.com/doda25-team7/model-service/pull/6
+
+- Tobias: https://github.com/doda25-team7/operation/pull/3
+Worked on enabling monitoring using prometheus. Also finished up local provisioning of the ansible playbooks.
 
 ### Week Q2.6 (Dec 15 - )
 
