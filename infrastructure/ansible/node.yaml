@@ -1,0 +1,12 @@
+---
+- name: Setup Kubernetes worker node
+  hosts: all
+  become: yes
+  tasks:
+    - name: Wait for join command
+      wait_for:
+        path: /vagrant/join-command.sh
+        timeout: 300
+
+    - name: Run Join Command
+      shell: sh /vagrant/join-command.sh

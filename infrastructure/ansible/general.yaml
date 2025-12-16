@@ -1,0 +1,161 @@
+---
+- name: General setup for all VMs
+  hosts: all
+  become: yes
+  tasks:
+    # Step 4: Register SSH Keys
+    - name: Register SSH keys from team members
+      authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      loop: "{{ query('fileglob', '/vagrant/ssh-keys/*.pub') }}"
+
+    # Step 5: Disable SWAP
+    - name: Disable swap in running system
+      shell: swapoff -a
+
+    - name: Remove swap entry from /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: '.*swap.*'
+        state: absent
+
+    # Step 6: br_netfilter
+    - name: Create k8s.conf for module loading
+      copy:
+        content: |
+          overlay
+          br_netfilter
+        dest: /etc/modules-load.d/k8s.conf
+
+    - name: Load br_netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: Load overlay module
+      modprobe:
+        name: overlay
+        state: present
+
+    # Step 7: Enable IPv4 forwarding
+    - name: Enable net.ipv4.ip_forward
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable net.bridge.bridge-nf-call-iptables
+      sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable net.bridge.bridge-nf-call-ip6tables
+      sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: '1'
+        state: present
+        reload: yes
+
+    # Step 8: Manage /etc/hosts
+    - name: Add cluster nodes to /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.68.100 ctrl
+          {% for i in range(1, num_workers|int + 1) %}
+          192.168.68.{{ 100 + i }} node-{{ i }}
+          {% endfor %}
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - K8S HOSTS"
+
+    # Step 9: Add Kubernetes repository
+    - name: Create keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Kubernetes apt signing key from local file
+      shell: gpg --dearmor < /vagrant/Release.key > /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      args:
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Set keyring permissions
+      file:
+        path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        mode: '0644'
+
+    - name: Add Kubernetes repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+        state: present
+        filename: kubernetes
+        update_cache: yes
+
+    # Step 10: Install K8s tools
+    - name: Install containerd and runc
+      apt:
+        name:
+          - containerd=1.7.24*
+          - runc=1.1.12*
+          - kubelet=1.32.4*
+          - kubeadm=1.32.4*
+          - kubectl=1.32.4*
+        state: present
+
+    - name: Hold packages
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - containerd
+        - runc
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    # Step 11: Configure Containerd
+    - name: Create containerd config directory
+      file:
+        path: /etc/containerd
+        state: directory
+
+    - name: Generate default containerd config
+      shell: containerd config default > /etc/containerd/config.toml
+      args:
+        creates: /etc/containerd/config.toml
+
+    - name: Disable AppArmor in containerd
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^\s*disable_apparmor\s*='
+        line: '    disable_apparmor = true'
+
+    - name: Update sandbox image
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^\s*sandbox_image\s*='
+        line: '    sandbox_image = "registry.k8s.io/pause:3.10"'
+
+    - name: Set SystemdCgroup
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^\s*SystemdCgroup\s*='
+        line: '            SystemdCgroup = true' # The indentation is intentional to match the file original format
+
+    - name: Restart containerd
+      service:
+        name: containerd
+        state: restarted
+        enabled: yes
+
+    # Step 12: Kubelet
+    - name: Start and enable kubelet
+      service:
+        name: kubelet
+        state: started
+        enabled: yes

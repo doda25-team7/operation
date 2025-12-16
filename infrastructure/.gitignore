@@ -1,0 +1,5 @@
+admin.conf
+join-command.sh
+.idea/
+infrastructure_*/
+.vagrant/
