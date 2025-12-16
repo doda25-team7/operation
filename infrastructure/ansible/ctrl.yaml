@@ -11,11 +11,11 @@
     - name: Initialize Kubernetes cluster
       command: >
         kubeadm init
-        --apiserver-advertise-address=192.168.68.100
+        --apiserver-advertise-address=192.168.56.100
         --pod-network-cidr=10.244.0.0/16
         --node-name ctrl
       when: not k8s_admin_conf.stat.exists
-
+      
     - name: Create .kube directory
       file:
         path: /home/vagrant/.kube

@@ -1,0 +1,118 @@
+---
+# ConfigMap for non-sensitive configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  MODEL_HOST: "http://model-service:8081"
+  APP_PORT: "8080"
+  MODEL_PORT: "8081"
+---
+# Deployment for model-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service
+  labels:
+    app: model-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+  template:
+    metadata:
+      labels:
+        app: model-service
+    spec:
+      containers:
+        - name: model-service
+          image: ghcr.io/doda25-team7/model-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: MODEL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MODEL_PORT
+---
+apiVersion: v1 # Service for model-service
+kind: Service
+metadata:
+  name: model-service
+  labels:
+    app: model-service
+spec:
+  selector:
+    app: model-service
+  ports:
+    - port: 8081
+      targetPort: 8081
+---
+# Deployment for app-service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-service
+  labels:
+    app: app-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-service
+  template:
+    metadata:
+      labels:
+        app: app-service
+    spec:
+      containers:
+        - name: app-service
+          image: ghcr.io/doda25-team7/app-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MODEL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MODEL_HOST
+            - name: APP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_PORT
+---
+# Service for app-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  labels:
+    app: app-service
+spec:
+  selector:
+    app: app-service
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  rules:
+    - host: doda.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-service
+                port:
+                  number: 8080

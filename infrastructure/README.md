@@ -35,9 +35,9 @@ NUM_WORKERS = 2  # Change this number to scale up or down
 
 ## Network Configuration
 
-- Control node: `192.168.68.100`
-- Worker node-N: `192.168.68.{100+N}`
-- Ingress controller: `192.168.68.90`
+- Control node: `192.168.56.100`
+- Worker node-N: `192.168.56.{100+N}`
+- Ingress controller: `192.168.56.90`
 
 ## Usage
 
@@ -108,7 +108,7 @@ sudo nano /etc/hosts
 ```
 Add this line at the end of the file:
 ```
-192.168.68.90    dashboard.local
+192.168.56.90    dashboard.local
 ```
 Save and exit (Ctrl+X, then Y, then Enter in nano).
 
@@ -117,7 +117,7 @@ Save and exit (Ctrl+X, then Y, then Enter in nano).
 2. Open `C:\Windows\System32\drivers\etc\hosts`
 3. Add this line at the end:
 ```
-192.168.68.90    dashboard.local
+192.168.56.90    dashboard.local
 ```
 4. Save the file
 
@@ -165,13 +165,13 @@ Copy the entire token that is displayed (it will be a long string).
    # On macOS/Linux
    cat /etc/hosts | grep dashboard.local
    
-   # Should show: 192.168.68.90    dashboard.local
+   # Should show: 192.168.56.90    dashboard.local
    ```
 
 2. Try accessing by IP directly:
    ```bash
    # Test if the IP is reachable
-   ping 192.168.68.90
+   ping 192.168.56.90
    ```
 
 3. If ping fails, check if the ingress controller is running:
@@ -184,7 +184,7 @@ Copy the entire token that is displayed (it will be a long string).
 4. If needed, manually add the IP to the control node's interface:
    ```bash
    vagrant ssh ctrl
-   sudo ip addr add 192.168.68.90/24 dev eth1
+   sudo ip addr add 192.168.56.90/24 dev eth1
    ```
 
 5. Verify the dashboard ingress is configured:
@@ -315,7 +315,57 @@ Copy the entire token that is displayed (it will be a long string).
    vagrant up
    ```
 
-
-
 ## NOTES
 login the ctrl and use `systemctl restart` to restart failed service of any service failed in k8s
+
+# Kubernetes Setup
+
+## Kubernetes vs Docker Compose
+
+| Docker Compose | Kubernetes |
+|----------------|------------|
+| Single machine | Multiple machines |
+| Manual restart | Auto-restart |
+| No load balancing | Built-in |
+| Port mapping | Ingress routing |
+
+Docker is good for small projects that run on one machine, but when more complexity, load balancing and failure recovery is needed kubernetes is the way to go.
+
+## What Each Resource Does
+
+### Deployment
+Runs and manages your containers (Pods). If a Pod crashes, Deployment automatically restarts it. It's like a supervisor that keeps your the app running.
+
+### Service
+Gives the Pods a stable DNS name. Pods have changing IPs, but Service provides a permanent address like `http://model-service:8081`.
+
+### Ingress
+Routes external traffic into the cluster. Maps `http://doda.local` → `app-service`.
+
+### ConfigMap
+Stores configuration (non-sensitive data) like URLs, ports, feature flags. One ConfigMap can be used by multiple Pods.
+
+### Secrets 
+TODO
+
+## How They Connect
+
+```
+User → Ingress (doda.local) → Service (app-service) → Deployment / ConfigMap (config)   → Pod (container)                                                                                         
+```
+
+## Quick Commands
+
+```bash
+# Deploy everything
+kubectl apply -f kubernetes-basic.yaml
+
+# Check status
+kubectl get deployments,services,ingress,pods
+
+# View logs
+kubectl logs -l app=app-service
+
+# Scale up
+kubectl scale deployment app-service --replicas=3
+```
