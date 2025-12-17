@@ -64,14 +64,15 @@
         group: vagrant
 
     - name: Generate join command
-      shell: kubeadm token create --print-join-command
+      shell: kubeadm token create --print-join-command --ttl 0
       register: join_command
 
     - name: Install Helm via binary
       block:
-        - name: Copy Helm from operations folder
-          copy:
-            src: ../operations/helm-v3.14.0-linux-amd64.tar.gz
+        - name: Download Helm
+          ansible.builtin.get_url:
+            url: https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
+            checksum: sha256:f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651
             dest: /tmp/helm.tar.gz
             mode: '0644'
 

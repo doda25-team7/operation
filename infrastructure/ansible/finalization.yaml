@@ -9,7 +9,7 @@
     # Installing MetalLB from local manifest to satisfy offline requirements
     - name: Copy MetalLB CRDs file into VM
       copy:
-        src: ../operations/metallb-native.yaml
+        src: metallb-native.yaml
         dest: /home/vagrant/metallb-native.yaml
         owner: vagrant
         group: vagrant
@@ -24,37 +24,13 @@
                --for=condition=ready pod \
                --timeout=60s
 
-    - name: Create IPAddressPool
+    - name: Copy metallb-config.yaml
       copy:
-        dest: /tmp/metallb-pool.yaml
-        content: |
-          apiVersion: metallb.io/v1beta1
-          kind: IPAddressPool
-          metadata:
-            name: default-pool
-            namespace: metallb-system
-          spec:
-            addresses:
-              - 192.168.68.90-192.168.68.99
+        src: metallb-config.yaml
+        dest: /tmp/metallb-config.yaml
 
-    - name: Apply IPAddressPool
-      shell: kubectl apply -f /tmp/metallb-pool.yaml
-
-    - name: Create L2Advertisement
-      copy:
-        dest: /tmp/metallb-l2.yaml
-        content: |
-          apiVersion: metallb.io/v1beta1
-          kind: L2Advertisement
-          metadata:
-            name: default
-            namespace: metallb-system
-          spec:
-            ipAddressPools:
-              - default-pool
-
-    - name: Apply L2Advertisement
-      shell: kubectl apply -f /tmp/metallb-l2.yaml
+    - name: Apply metallb-config.yaml
+      shell: kubectl apply -f /tmp/metallb-config.yaml
 
     - name: Check if Helm exists
       stat:
@@ -78,7 +54,7 @@
         content: |
           controller:
             service:
-              loadBalancerIP: 192.168.68.90
+              loadBalancerIP: 192.168.56.90
 
     - name: Delete ingress-nginx service (force IP update)
       shell: kubectl delete svc -n ingress-nginx ingress-nginx-controller \
@@ -228,10 +204,12 @@
             path: /usr/local/bin/istioctl
             state: absent
 
-        # Installing istioctl from local tarball to satisfy offline requirements
-        - name: Copy Istio tarball from operations folder
-          copy:
-            src: ../operations/istio-1.25.2-linux-amd64.tar.gz
+        - name: Download Istio tarball
+          ansible.builtin.get_url:
+            url: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-amd64.tar.gz
+            # The checksum attribute does not seem to correctly follow the redirect
+            # checksum: sha256:https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-amd64.tar.gz.sha256 
+            checksum: sha256:2a8bc831fe6ceeb02df31651734d06e0954006a8f4780f40d8b5ad60f34471fd
             dest: /tmp/istio.tar.gz
             mode: '0644'
 
@@ -287,7 +265,7 @@
                 enabled: true
                 k8s:
                   service:
-                    loadBalancerIP: 192.168.68.91
+                    loadBalancerIP: 192.168.56.91
       when: istioctl_working
 
     - name: Delete istio-ingressgateway service
@@ -314,5 +292,5 @@
 
     - name: Show Istio installation success
       debug:
-        msg: "Istio installed successfully! Istio ingress gateway will be available at 192.168.68.91"
+        msg: "Istio installed successfully! Istio ingress gateway will be available at 192.168.56.91"
       when: istioctl_working | bool
