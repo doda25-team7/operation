@@ -350,15 +350,20 @@ TODO
 
 ## How They Connect
 
+The HTTP(S) requests get passed in the following order:
 ```
-User → Ingress (doda.local) → Service (app-service) → Deployment / ConfigMap (config)   → Pod (container)                                                                                         
+User → Ingress (ingress-nginx) → Service (app-service) → Deployment → Pod (container)
 ```
+The ingress-nginx service is alloced its IP adres by the metallb-controller, and the routing is configured over ARP (protocal "layer2") by the metallb-speaker. 
 
 ## Quick Commands
 
 ```bash
-# Deploy everything
+# Deploy everything using kubectl
 kubectl apply -f kubernetes-basic.yaml
+
+# Deploy everything using Helm
+helm upgrade app SMS-checker
 
 # Check status
 kubectl get deployments,services,ingress,pods
