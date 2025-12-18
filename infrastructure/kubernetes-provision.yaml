@@ -104,7 +104,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: app-ingress
+  namespace: default
 spec:
+  ingressClassName: nginx
   rules:
     - host: doda.local
       http:
