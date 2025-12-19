@@ -1,0 +1,22 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-alerts
+  labels:
+    release: {{ .Values.monitoring.prometheusRelease }}
+spec:
+  groups:
+    - name: app-alerts
+      interval: 30s
+      rules:
+        # TODO: Update the metric name based on your actual metrics
+        - alert: HighRequestRate
+          expr: rate(http_requests_total[1m]) > 15
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High request rate detected"
+            description: "Service is receiving more than 15 requests per minute for 2 minutes"
+{{- end }}
