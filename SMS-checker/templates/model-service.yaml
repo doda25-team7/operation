@@ -8,5 +8,6 @@ spec:
   selector:
     app: {{ .Release.Name }}-{{ .Values.model.name }}
   ports:
-    - port: {{ .Values.model.port }}
+    - name: http
+      port: {{ .Values.model.port }}
       targetPort: {{ .Values.model.port }}
