@@ -3,10 +3,22 @@ app:
   image: ghcr.io/doda25-team7/app-service:latest
   port: 8080
   host: doda.local
+  metrics:
+    enabled: true
+    port: 8080
+    path: /actuator/prometheus
 
 model:
   name: model-service
   image: ghcr.io/doda25-team7/model-service:latest
   port: 8081
+  metrics:
+    enabled: true
+    port: 8081
+    path: /metrics
 
+monitoring:
+  enabled: true
+  prometheusRelease: myprom
+  scrapeInterval: 30s
 replicaCount: 1

@@ -10,3 +10,9 @@ spec:
   ports:
     - port: {{ .Values.app.port }}
       targetPort: {{ .Values.app.port }}
+      name: http
+    {{- if .Values.app.metrics.enabled }}
+    - port: {{ .Values.app.metrics.port }}
+      targetPort: {{ .Values.app.metrics.port }}
+      name: metrics
+    {{- end }}

@@ -33,12 +33,12 @@
         group: vagrant
         mode: '0600'
 
-    - name: Copy admin.conf to shared folder for host usage
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /vagrant/admin.conf
-        remote_src: yes
-        mode: '0644'
+   # - name: Copy admin.conf to shared folder for host usage
+  #    copy:
+  #      src: /etc/kubernetes/admin.conf
+   #     dest: /vagrant/admin.conf
+   #     remote_src: yes
+   #     mode: '0644'
 
     - name: Copy kube-flannel manifest into controller
       copy:
