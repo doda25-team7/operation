@@ -51,6 +51,8 @@ Worked on enabling monitoring using prometheus. Also finished up local provision
 ### Week Q2.6 (Dec 15 - )
 - Tess - Worked on the Ansible and Vagrant configuration and the Helm chart https://github.com/doda25-team7/operation/pull/4
 
+- Renyi Working on alerting of assignment 3. https://github.com/doda25-team7/operation/pull/5
+
 ### Week Q2.7 (Jan 5 - )
 
 ### Week Q2.8 (Jan 12 - )
