@@ -20,7 +20,7 @@ spec:
           ports:
             - containerPort: {{ .Values.model.port }}
               name: http
-            {{- if .Values.model.metrics.enabled }}
+            {{- if and .Values.model.metrics.enabled (ne .Values.model.metrics.port .Values.model.port) }}
             - containerPort: {{ .Values.model.metrics.port }}
               name: metrics
             {{- end }}
@@ -30,3 +30,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: MODEL_PORT
+          volumeMounts:
+            - name: model-data
+              mountPath: {{ .Values.model.storage.mountPath | default "/app/data" }}
+      volumes:
+        - name: model-data
+          hostPath:
+            path: /operation/model
+            type: DirectoryOrCreate

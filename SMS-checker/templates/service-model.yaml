@@ -11,7 +11,7 @@ spec:
     - port: {{ .Values.model.port }}
       targetPort: {{ .Values.model.port }}
       name: http
-    {{- if .Values.model.metrics.enabled }}
+    {{- if and .Values.model.metrics.enabled (ne .Values.model.metrics.port .Values.model.port) }}
     - port: {{ .Values.model.metrics.port }}
       targetPort: {{ .Values.model.metrics.port }}
       name: metrics

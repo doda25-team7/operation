@@ -12,6 +12,9 @@ model:
   name: model-service
   image: ghcr.io/doda25-team7/model-service:latest
   port: 8081
+  storage:
+    size: 1Gi
+    mountPath: /app/data
   metrics:
     enabled: true
     port: 8081

@@ -20,7 +20,7 @@ spec:
           ports:
             - containerPort: {{ .Values.app.port }}
               name: http
-            {{- if .Values.app.metrics.enabled }}
+            {{- if and .Values.app.metrics.enabled (ne .Values.app.metrics.port .Values.app.port) }}
             - containerPort: {{ .Values.app.metrics.port }}
               name: metrics
             {{- end }}
