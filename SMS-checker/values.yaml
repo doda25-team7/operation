@@ -3,10 +3,13 @@ app:
   image: ghcr.io/doda25-team7/app-service:latest
   port: 8080
   host: doda.local
+  replicaCount: 1
 
 model:
   name: model-service
   image: ghcr.io/doda25-team7/model-service:latest
   port: 8081
+  replicaCount: 1
 
-replicaCount: 1
+ingress:
+  className: nginx
