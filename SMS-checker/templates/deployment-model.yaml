@@ -25,3 +25,8 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: MODEL_PORT
+            - name: MODEL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: MODEL_URL

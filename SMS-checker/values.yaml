@@ -8,5 +8,6 @@ model:
   name: model-service
   image: ghcr.io/doda25-team7/model-service:latest
   port: 8081
+  model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
 
 replicaCount: 1
