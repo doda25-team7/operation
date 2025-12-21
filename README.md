@@ -72,4 +72,7 @@ docker compose down --rmi all
 ```
 ## Getting Stated using Kubernetes
 
-The Kubernetes configuration is not in a stable state currently. 
+First the Kubernetes cluser should be deployed. 
+More information on deploying the Kubernetes cluser can be found in infrastructure/README.md.
+
+TODO: continue this readme section.

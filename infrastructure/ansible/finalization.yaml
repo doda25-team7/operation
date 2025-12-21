@@ -163,6 +163,19 @@
       ansible.builtin.set_fact:
         dashboard_service_port: "{{ dashboard_port.stdout | default('443') | trim }}"
 
+    - name: Copy SSL-TLS secrets
+      ansible.builtin.copy:
+        src: "SSL-TLS-keys"
+        dest: "/home/vagrant/"
+        mode: "0600"
+
+    - name: Create TLS secrets from key/cert pair
+      ansible.builtin.shell: |
+        kubectl create secret tls dashboard.local \
+          --key /home/vagrant/SSL-TLS-keys/dashboard.local.key \
+          --cert /home/vagrant/SSL-TLS-keys/dashboard.local.crt \
+          --namespace kubernetes-dashboard
+
     - name: Create dashboard ingress
       ansible.builtin.copy:
         dest: /tmp/dashboard-ingress.yaml
@@ -178,6 +191,10 @@
               nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
           spec:
             ingressClassName: nginx
+            tls:
+            - hosts:
+              - dashboard.local
+              secretName: dashboard.local
             rules:
             - host: dashboard.local
               http:
