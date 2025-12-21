@@ -53,6 +53,8 @@ Worked on enabling monitoring using prometheus. Also finished up local provision
 
 - Renyi Working on alerting of assignment 3. https://github.com/doda25-team7/operation/pull/5
 
+- Francisco - Working on Istio setup - Currently waiting on Helm Chart setup to be finished
+
 ### Week Q2.7 (Jan 5 - )
 
 ### Week Q2.8 (Jan 12 - )
