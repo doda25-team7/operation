@@ -40,4 +40,32 @@ helm install myprom prom-repo/kube-prometheus-stack \
   --create-namespace
 ```
 
-5. 
+5. Deploy the application (make sure the your not in the /vagrant/operation directory inside the VM after this step)
+```bash
+cd /vagrant/operation
+
+helm upgrade --install app ./SMS-checker -n sms --create-namespace
+```
+
+6. To access Prometheus UI
+```bash
+kubectl port-forward -n monitoring svmyprom-kube-prometheus-sta-prometheus   --address 0.0.0.0  us 9090:9090
+```
+
+7. To get /metrics (have two terminals open, one for the port forward, one for running the curl command)
+```bash
+kubectl port-forward -n sms svc/app-app-service 8080:8080
+
+curl http://localhost:8080/sms/metrics
+```
+
+8. To get /metrics in browser
+In one terminal do:
+```bash
+vagrant ssh ctrl -- -L 8080:localhost:8080
+```
+In a second terminal do:
+```bash
+kubectl port-forward -n sms svc/app-app-service 8080:8080
+```
+Open http://localhost:8080/sms/metrics in browser.

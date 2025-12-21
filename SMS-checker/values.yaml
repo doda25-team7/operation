@@ -1,6 +1,7 @@
 app:
   name: app-service
   image: ghcr.io/doda25-team7/app-service:latest
+  tag: latest
   port: 8080
   host: doda.local
   replicaCount: 1
