@@ -2,19 +2,18 @@
 - name: Finalize Cluster Setup
   hosts: ctrl
   environment:
-    KUBECONFIG: /home/vagrant/.kube/config
+    # do not replace with ansible_facts['env']['HOME'], ansible_facts is not yet populated
+    KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
   tasks:
     # Installing MetalLB from local manifest to satisfy offline requirements
     - name: Copy MetalLB CRDs file into VM
       ansible.builtin.copy:
         src: metallb-native.yaml
-        dest: /home/vagrant/metallb-native.yaml
-        owner: vagrant
-        group: vagrant
+        dest: "{{ ansible_facts['env']['HOME'] }}/metallb-native.yaml"
         mode: '0644'
 
     - name: Install MetalLB CRDs
-      ansible.builtin.command: kubectl apply -f /home/vagrant/metallb-native.yaml
+      ansible.builtin.command: kubectl apply -f "{{ ansible_facts['env']['HOME'] }}/metallb-native.yaml"
 
     - name: Wait for MetalLB controller to be ready
       ansible.builtin.command: >
@@ -166,14 +165,17 @@
     - name: Copy SSL-TLS secrets
       ansible.builtin.copy:
         src: "SSL-TLS-keys"
-        dest: "/home/vagrant/"
+        dest: "{{ ansible_facts['env']['HOME'] }}/"
         mode: "0600"
 
     - name: Create TLS secrets from key/cert pair
+      # create secret tls does not support overwriting
       ansible.builtin.shell: |
+        kubectl delete secret dashboard.local \
+        -n kubernetes-dashboard --ignore-not-found=true
         kubectl create secret tls dashboard.local \
-          --key /home/vagrant/SSL-TLS-keys/dashboard.local.key \
-          --cert /home/vagrant/SSL-TLS-keys/dashboard.local.crt \
+          --key {{ ansible_facts['env']['HOME'] }}/SSL-TLS-keys/dashboard.local.key \
+          --cert {{ ansible_facts['env']['HOME'] }}/SSL-TLS-keys/dashboard.local.crt \
           --namespace kubernetes-dashboard
 
     - name: Create dashboard ingress
@@ -234,7 +236,7 @@
           ansible.builtin.unarchive:
             src: /tmp/istio.tar.gz
             dest: /tmp/
-            remote_src: yes
+            remote_src: true
           register: istio_unpacked
 
         - name: Install (overwrite) istioctl binary with correct permissions
@@ -243,7 +245,7 @@
             src: /tmp/istio-1.25.2/bin/istioctl
             dest: /usr/local/bin/istioctl
             mode: '0755'
-            remote_src: yes
+            remote_src: true
 
         - name: Verify istioctl is working
           ansible.builtin.command: /usr/local/bin/istioctl version --remote=false
@@ -280,6 +282,7 @@
                 k8s:
                   service:
                     loadBalancerIP: 192.168.56.91
+        mode: "0644"
       when: istioctl_working
 
     - name: Delete istio-ingressgateway service
@@ -291,7 +294,7 @@
     - name: Install or upgrade Istio
       ansible.builtin.command: istioctl install -y -f /tmp/istio-config.yaml
       environment:
-        KUBECONFIG: /home/vagrant/.kube/config
+        KUBECONFIG: "{{ ansible_facts['env']['HOME'] }}/.kube/config"
       when: istioctl_working
 
     - name: Wait for Istio pods to be ready
