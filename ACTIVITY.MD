@@ -55,6 +55,9 @@ Worked on enabling monitoring using prometheus. Also finished up local provision
 
 - Francisco - Working on Istio setup - Currently waiting on Helm Chart setup to be finished
 
+- Tobias: https://github.com/doda25-team7/operation/pull/3
+Further progression with the monitoring setup using prometheus. Also worked on improving the helm chart and adding a MonitorController.java in app-service.
+
 ### Week Q2.7 (Jan 5 - )
 
 ### Week Q2.8 (Jan 12 - )
