@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  MODEL_HOST: "http://{{ .Values.model.name }}:{{ .Values.model.port }}"
+  APP_PORT: "{{ .Values.app.port }}"
+  MODEL_PORT: "{{ .Values.model.port }}"

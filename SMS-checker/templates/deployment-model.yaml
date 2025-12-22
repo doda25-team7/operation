@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.model.name }}
+  labels:
+    app: {{ .Values.model.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.model.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.model.name }}
+    spec:
+      containers:
+        - name: {{ .Values.model.name }}
+          image: {{ .Values.model.image }}
+          ports:
+            - containerPort: {{ .Values.model.port }}
+              name: http
+            {{- if and .Values.model.metrics.enabled (ne .Values.model.metrics.port .Values.model.port) }}
+            - containerPort: {{ .Values.model.metrics.port }}
+              name: metrics
+            {{- end }}
+          env:
+            - name: MODEL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: MODEL_PORT
+          volumeMounts:
+            - name: model-data
+              mountPath: {{ .Values.model.storage.mountPath | default "/app/data" }}
+      volumes:
+        - name: model-data
+          hostPath:
+            path: /operation/model
+            type: DirectoryOrCreate
