@@ -49,6 +49,14 @@ https://github.com/doda25-team7/infrastructure/pull/8
 Worked on enabling monitoring using prometheus. Also finished up local provisioning of the ansible playbooks.
 
 ### Week Q2.6 (Dec 15 - )
+- Tess - Worked on the Ansible and Vagrant configuration and the Helm chart https://github.com/doda25-team7/operation/pull/4
+
+- Renyi Working on alerting of assignment 3. https://github.com/doda25-team7/operation/pull/5
+
+- Francisco - Working on Istio setup - Currently waiting on Helm Chart setup to be finished
+
+- Tobias: https://github.com/doda25-team7/operation/pull/3
+Further progression with the monitoring setup using prometheus. Also worked on improving the helm chart and adding a MonitorController.java in app-service.
 
 ### Week Q2.7 (Jan 5 - )
 

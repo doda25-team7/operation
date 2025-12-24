@@ -6,3 +6,4 @@ data:
   MODEL_HOST: "http://{{ .Release.Name }}-{{ .Values.model.name }}:{{ .Values.model.port }}"
   APP_PORT: "{{ .Values.app.port }}"
   MODEL_PORT: "{{ .Values.model.port }}"
+  MODEL_URL: "{{ .Values.model.model_url }}"

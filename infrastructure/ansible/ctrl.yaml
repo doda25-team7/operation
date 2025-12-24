@@ -1,71 +1,65 @@
 ---
 - name: Setup Kubernetes control node
   hosts: all
-  become: yes
   tasks:
     - name: Check if cluster is already initialized
-      stat:
+      ansible.builtin.stat:
         path: /etc/kubernetes/admin.conf
       register: k8s_admin_conf
 
     - name: Initialize Kubernetes cluster
-      command: >
+      become: true
+      ansible.builtin.command: >
         kubeadm init
         --apiserver-advertise-address=192.168.56.100
         --pod-network-cidr=10.244.0.0/16
         --node-name ctrl
       when: not k8s_admin_conf.stat.exists
-      
+
     - name: Create .kube directory
-      file:
-        path: /home/vagrant/.kube
+      ansible.builtin.file:
+        path: "{{ ansible_facts['env']['HOME'] }}/.kube"
         state: directory
-        owner: vagrant
-        group: vagrant
         mode: '0755'
 
-    - name: Copy admin.conf to vagrant's kube config
-      copy:
+    - name: Copy admin.conf kube config
+      become: true
+      ansible.builtin.copy:
+        remote_src: true
         src: /etc/kubernetes/admin.conf
-        dest: /home/vagrant/.kube/config
-        remote_src: yes
-        owner: vagrant
-        group: vagrant
+        dest: "{{ ansible_facts['env']['HOME'] }}/.kube/config"
         mode: '0600'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
 
     - name: Copy admin.conf to shared folder for host usage
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /vagrant/admin.conf
-        remote_src: yes
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ ansible_facts['env']['HOME'] }}/.kube/config"
+        dest: "/vagrant/admin.conf"
         mode: '0644'
+      when: ansible_user == "vagrant"
 
     - name: Copy kube-flannel manifest into controller
-      copy:
-        src: /vagrant/operations/kube-flannel.yml
-        dest: /home/vagrant/kube-flannel.yml
-        owner: vagrant
-        group: vagrant
+      ansible.builtin.copy:
+        src: kube-flannel.yml
+        dest: "{{ ansible_facts['env']['HOME'] }}/kube-flannel.yml"
         mode: '0644'
+      tags:
+        - debug
 
     - name: Install Flannel CNI
-      become_user: vagrant
       environment:
-        KUBECONFIG: /home/vagrant/.kube/config
-      command: kubectl apply -f /home/vagrant/kube-flannel.yml
+        KUBECONFIG: "{{ ansible_facts['env']['HOME'] }}/.kube/config"
+      ansible.builtin.command: kubectl apply -f {{ ansible_facts['env']['HOME'] }}/kube-flannel.yml
       args:
-        creates: /home/vagrant/.kube/flannel-installed
+        creates: "{{ ansible_facts['env']['HOME'] }}/.kube/flannel-installed"
 
     - name: Mark Flannel as installed
-      file:
-        path: /home/vagrant/.kube/flannel-installed
+      ansible.builtin.file:
+        path: "{{ ansible_facts['env']['HOME'] }}/.kube/flannel-installed"
         state: touch
-        owner: vagrant
-        group: vagrant
-
-    - name: Generate join command
-      shell: kubeadm token create --print-join-command --ttl 0
-      register: join_command
+        mode: '0644'
 
     - name: Install Helm via binary
       block:
@@ -77,27 +71,22 @@
             mode: '0644'
 
         - name: Extract Helm
-          unarchive:
+          ansible.builtin.unarchive:
+            remote_src: true
             src: /tmp/helm.tar.gz
             dest: /tmp/
-            remote_src: yes
 
         - name: Move Helm to /usr/local/bin
-          copy:
+          become: true
+          ansible.builtin.copy:
+            remote_src: true
             src: /tmp/linux-amd64/helm
             dest: /usr/local/bin/helm
             mode: '0755'
-            remote_src: yes
           register: helm_installed
 
         - name: Remove temporary extraction folder
-          file:
+          ansible.builtin.file:
             path: /tmp/linux-amd64
             state: absent
           when: helm_installed is changed
-
-    - name: Save join command
-      copy:
-        content: "{{ join_command.stdout }}"
-        dest: /vagrant/join-command.sh
-        mode: '0755'
