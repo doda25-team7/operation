@@ -1,0 +1,13 @@
+---
+- name: Setup Kubernetes worker node
+  hosts: all
+  tasks:
+    - name: Generate join command
+      delegate_to: "ctrl"
+      ansible.builtin.command: kubeadm token create --print-join-command
+      register: join_command
+
+    - name: Run join command
+      become: true
+      ansible.builtin.shell:
+        cmd: "{{ join_command.stdout }}"
