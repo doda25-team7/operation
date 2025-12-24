@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app.name }}
+  name: {{ .Release.Name }}-{{ .Values.app.name }}
   labels:
-    app: {{ .Values.app.name }}
+    app: {{ .Release.Name }}-{{ .Values.app.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.app.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.app.name }}
+      app: {{ .Release.Name }}-{{ .Values.app.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.app.name }}
+        app: {{ .Release.Name }}-{{ .Values.app.name }}
     spec:
       containers:
         - name: {{ .Values.app.name }}
