@@ -49,14 +49,17 @@ helm upgrade --install app ./SMS-checker -n sms --create-namespace
 
 6. To access Prometheus UI
 ```bash
-kubectl port-forward -n monitoring svmyprom-kube-prometheus-sta-prometheus   --address 0.0.0.0  us 9090:9090
+kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus \
+  --address 0.0.0.0 \
+  9090:9090
 ```
+Then open http://192.168.56.100:9090
 
 7. To get /metrics (have two terminals open, one for the port forward, one for running the curl command)
 ```bash
 kubectl port-forward -n sms svc/app-app-service 8080:8080
 
-curl http://localhost:8080/sms/metrics
+curl http://localhost:8080/metrics
 ```
 
 8. To get /metrics in browser
@@ -68,4 +71,4 @@ In a second terminal do:
 ```bash
 kubectl port-forward -n sms svc/app-app-service 8080:8080
 ```
-Open http://localhost:8080/sms/metrics in browser.
+Open http://localhost:8080/metrics in browser.
