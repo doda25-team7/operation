@@ -1,88 +1,90 @@
 ---
 - name: Finalize Cluster Setup
-  hosts: all
-  become: yes
-  become_user: vagrant
+  hosts: ctrl
   environment:
-    KUBECONFIG: /home/vagrant/.kube/config
+    # do not replace with ansible_facts['env']['HOME'], ansible_facts is not yet populated
+    KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
   tasks:
     # Installing MetalLB from local manifest to satisfy offline requirements
     - name: Copy MetalLB CRDs file into VM
-      copy:
+      ansible.builtin.copy:
         src: metallb-native.yaml
-        dest: /home/vagrant/metallb-native.yaml
-        owner: vagrant
-        group: vagrant
+        dest: "{{ ansible_facts['env']['HOME'] }}/metallb-native.yaml"
         mode: '0644'
 
     - name: Install MetalLB CRDs
-      shell: kubectl apply -f /home/vagrant/metallb-native.yaml
+      ansible.builtin.command: kubectl apply -f "{{ ansible_facts['env']['HOME'] }}/metallb-native.yaml"
 
     - name: Wait for MetalLB controller to be ready
-      shell: kubectl wait -n metallb-system \
-               -l app=metallb,component=controller \
-               --for=condition=ready pod \
-               --timeout=60s
+      ansible.builtin.command: >
+        kubectl wait -n metallb-system
+        -l app=metallb,component=controller
+        --for=condition=ready pod
+        --timeout=60s
 
     - name: Copy metallb-config.yaml
-      copy:
+      ansible.builtin.copy:
         src: metallb-config.yaml
         dest: /tmp/metallb-config.yaml
+        mode: "0644"
 
     - name: Apply metallb-config.yaml
-      shell: kubectl apply -f /tmp/metallb-config.yaml
+      ansible.builtin.command: kubectl apply -f /tmp/metallb-config.yaml
 
     - name: Check if Helm exists
-      stat:
+      ansible.builtin.stat:
         path: /usr/local/bin/helm
       register: helm_binary
 
     - name: Fail if Helm is missing
-      fail:
+      ansible.builtin.fail:
         msg: "Helm binary missing—installation in ctrl.yaml likely failed."
       when: not (helm_binary.stat.exists | default(false))
 
     - name: Add ingress-nginx Helm repository
-      shell: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+      ansible.builtin.command: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 
-    - name: Update Helm repositories
-      shell: helm repo update
+    - name: Update Helm repositories (ingress-nginx)
+      ansible.builtin.command: helm repo update
 
     - name: Create ingress-nginx values file
-      copy:
+      ansible.builtin.copy:
         dest: /tmp/ingress-nginx-values.yaml
         content: |
           controller:
             service:
               loadBalancerIP: 192.168.56.90
+        mode: "0644"
 
     - name: Delete ingress-nginx service (force IP update)
-      shell: kubectl delete svc -n ingress-nginx ingress-nginx-controller \
-               --ignore-not-found=true
+      ansible.builtin.command: >
+        kubectl delete svc -n ingress-nginx ingress-nginx-controller
+        --ignore-not-found=true
 
     - name: Install Nginx Ingress Controller
-      shell: >
-        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-          --namespace ingress-nginx \
-          --create-namespace \
-          -f /tmp/ingress-nginx-values.yaml \
-          --wait
+      ansible.builtin.command: >
+        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx
+        --namespace ingress-nginx
+        --create-namespace
+        -f /tmp/ingress-nginx-values.yaml
+        --wait
 
     - name: Wait for ingress-nginx to be ready
-      shell: kubectl wait \
-               --namespace ingress-nginx \
-               --for=condition=ready pod \
-               --selector=app.kubernetes.io/component=controller \
-               --timeout=120s
+      ansible.builtin.command: >
+        kubectl wait
+        --namespace ingress-nginx
+        --for=condition=ready pod
+        --selector=app.kubernetes.io/component=controller
+        --timeout=120s
 
     - name: Add kubernetes-dashboard Helm repository
-      shell: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+      ansible.builtin.command: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
 
-    - name: Update Helm repositories
-      shell: helm repo update
+    - name: Update Helm repositories (dashboard)
+      ansible.builtin.command: helm repo update
 
     - name: Create dashboard values file
-      copy:
+      ansible.builtin.copy:
         dest: /tmp/dashboard-values.yaml
         content: |
           protocolHttp: false
@@ -90,27 +92,25 @@
             enabled: true
 
     - name: Install Kubernetes Dashboard
-      shell: >
+      ansible.builtin.command: >
         helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
         --namespace kubernetes-dashboard
         --create-namespace
         -f /tmp/dashboard-values.yaml
 
     - name: Wait for dashboard to be ready
-      shell: |
-        # Wait for pods to appear first
+      ansible.builtin.shell: |
         for i in {1..30}; do
           if kubectl get pods -n kubernetes-dashboard --no-headers 2>/dev/null | grep -q .; then
             break
           fi
           sleep 2
         done
-        # Wait for any pod in the namespace to be ready
         kubectl wait --namespace kubernetes-dashboard --for=condition=ready pod --all --timeout=120s
       failed_when: false
 
     - name: Create admin-user ServiceAccount
-      copy:
+      ansible.builtin.copy:
         dest: /tmp/dashboard-admin.yaml
         content: |
           apiVersion: v1
@@ -131,12 +131,13 @@
           - kind: ServiceAccount
             name: admin-user
             namespace: kubernetes-dashboard
+        mode: "0644"
 
     - name: Apply admin-user ServiceAccount
-      shell: kubectl apply -f /tmp/dashboard-admin.yaml
+      ansible.builtin.command: kubectl apply -f /tmp/dashboard-admin.yaml
 
     - name: Wait for dashboard service to have endpoints
-      shell: |
+      ansible.builtin.shell: |
         for i in {1..30}; do
           if kubectl get endpoints -n kubernetes-dashboard kubernetes-dashboard-kong-proxy -o jsonpath='{.subsets[*].addresses[*].ip}' 2>/dev/null | grep -q .; then
             exit 0
@@ -147,7 +148,7 @@
       failed_when: false
 
     - name: Get dashboard service port
-      shell: |
+      ansible.builtin.shell: |
         PORT=$(kubectl get svc -n kubernetes-dashboard kubernetes-dashboard-kong-proxy -o jsonpath='{.spec.ports[?(@.name=="https" || @.name=="dashboard-https")].port}' 2>/dev/null)
         if [ -z "$PORT" ]; then
           PORT=$(kubectl get svc -n kubernetes-dashboard kubernetes-dashboard-kong-proxy -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
@@ -158,11 +159,27 @@
       failed_when: false
 
     - name: Set dashboard port fact
-      set_fact:
+      ansible.builtin.set_fact:
         dashboard_service_port: "{{ dashboard_port.stdout | default('443') | trim }}"
 
+    - name: Copy SSL-TLS secrets
+      ansible.builtin.copy:
+        src: "SSL-TLS-keys"
+        dest: "{{ ansible_facts['env']['HOME'] }}/"
+        mode: "0600"
+
+    - name: Create TLS secrets from key/cert pair
+      # create secret tls does not support overwriting
+      ansible.builtin.shell: |
+        kubectl delete secret dashboard.local \
+        -n kubernetes-dashboard --ignore-not-found=true
+        kubectl create secret tls dashboard.local \
+          --key {{ ansible_facts['env']['HOME'] }}/SSL-TLS-keys/dashboard.local.key \
+          --cert {{ ansible_facts['env']['HOME'] }}/SSL-TLS-keys/dashboard.local.crt \
+          --namespace kubernetes-dashboard
+
     - name: Create dashboard ingress
-      copy:
+      ansible.builtin.copy:
         dest: /tmp/dashboard-ingress.yaml
         content: |
           apiVersion: networking.k8s.io/v1
@@ -176,6 +193,10 @@
               nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
           spec:
             ingressClassName: nginx
+            tls:
+            - hosts:
+              - dashboard.local
+              secretName: dashboard.local
             rules:
             - host: dashboard.local
               http:
@@ -187,71 +208,66 @@
                       name: kubernetes-dashboard-kong-proxy
                       port:
                         number: {{ dashboard_service_port | int }}
+        mode: "0644"
 
     - name: Apply dashboard ingress
-      shell: kubectl apply -f /tmp/dashboard-ingress.yaml
+      ansible.builtin.command: kubectl apply -f /tmp/dashboard-ingress.yaml
 
     - name: Initialize istioctl_working fact
-      set_fact:
+      ansible.builtin.set_fact:
         istioctl_working: false
 
-    - name: Install Istio using official method
+    - name: Install Istio
       block:
         - name: Remove existing istioctl if corrupted
-          become: yes
-          become_user: root
-          file:
+          become: true
+          ansible.builtin.file:
             path: /usr/local/bin/istioctl
             state: absent
 
         - name: Download Istio tarball
           ansible.builtin.get_url:
             url: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-amd64.tar.gz
-            # The checksum attribute does not seem to correctly follow the redirect
-            # checksum: sha256:https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-amd64.tar.gz.sha256 
             checksum: sha256:2a8bc831fe6ceeb02df31651734d06e0954006a8f4780f40d8b5ad60f34471fd
             dest: /tmp/istio.tar.gz
             mode: '0644'
 
         - name: Extract Istio tarball
-          unarchive:
+          ansible.builtin.unarchive:
             src: /tmp/istio.tar.gz
             dest: /tmp/
-            remote_src: yes
+            remote_src: true
           register: istio_unpacked
 
         - name: Install (overwrite) istioctl binary with correct permissions
-          become: yes
-          become_user: root
-          copy:
+          become: true
+          ansible.builtin.copy:
             src: /tmp/istio-1.25.2/bin/istioctl
             dest: /usr/local/bin/istioctl
             mode: '0755'
-            remote_src: yes
+            remote_src: true
 
         - name: Verify istioctl is working
-          become: yes
-          become_user: root
-          command: /usr/local/bin/istioctl version --remote=false
+          ansible.builtin.command: /usr/local/bin/istioctl version --remote=false
           register: istioctl_check
           failed_when: istioctl_check.rc != 0
 
-        - set_fact:
+        - ansible.builtin.set_fact:
             istioctl_working: true
 
         - name: Show istioctl verification result
-          debug:
-            msg: "{{ 'istioctl binary verified - proceeding with installation' if istioctl_working else 'istioctl binary exists but cannot execute. Output: ' + istioctl_verify.stdout | default('N/A') }}"
+          ansible.builtin.debug:
+            msg: "{{ 'istioctl binary verified - proceeding with installation' if istioctl_working else 'istioctl binary exists but cannot execute.' }}"
       rescue:
         - name: Set istioctl_working to false on failure
-          set_fact:
+          ansible.builtin.set_fact:
             istioctl_working: false
         - name: Warn about Istio installation failure
-          debug:
+          ansible.builtin.debug:
             msg: "Istio installation failed, but continuing with dashboard setup..."
 
     - name: Create Istio config
-      copy:
+      ansible.builtin.copy:
         dest: /tmp/istio-config.yaml
         content: |
           apiVersion: install.istio.io/v1alpha1
@@ -266,31 +282,32 @@
                 k8s:
                   service:
                     loadBalancerIP: 192.168.56.91
+        mode: "0644"
       when: istioctl_working
 
     - name: Delete istio-ingressgateway service
-      shell: kubectl delete svc -n istio-system istio-ingressgateway \
-               --ignore-not-found=true
+      ansible.builtin.command: >
+        kubectl delete svc -n istio-system istio-ingressgateway
+        --ignore-not-found=true
       when: istioctl_working
 
     - name: Install or upgrade Istio
-      shell: istioctl install -y -f /tmp/istio-config.yaml
-      become_user: vagrant
-      become: yes
+      ansible.builtin.command: istioctl install -y -f /tmp/istio-config.yaml
       environment:
-        KUBECONFIG: /home/vagrant/.kube/config
+        KUBECONFIG: "{{ ansible_facts['env']['HOME'] }}/.kube/config"
       when: istioctl_working
 
     - name: Wait for Istio pods to be ready
-      shell: kubectl wait \
-               --namespace istio-system \
-               --for=condition=ready pod \
-               --all \
-               --timeout=300s
+      ansible.builtin.command: >
+        kubectl wait
+        --namespace istio-system
+        --for=condition=ready pod
+        --all
+        --timeout=300s
       when: istioctl_working
       failed_when: false
 
     - name: Show Istio installation success
-      debug:
+      ansible.builtin.debug:
         msg: "Istio installed successfully! Istio ingress gateway will be available at 192.168.56.91"
       when: istioctl_working | bool

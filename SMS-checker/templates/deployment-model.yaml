@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.model.name }}
+  name: {{ .Release.Name }}-{{ .Values.model.name }}
   labels:
-    app: {{ .Values.model.name }}
+    app: {{ .Release.Name }}-{{ .Values.model.name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.model.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.model.name }}
+      app: {{ .Release.Name }}-{{ .Values.model.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.model.name }}
+        app: {{ .Release.Name }}-{{ .Values.model.name }}
     spec:
       containers:
         - name: {{ .Values.model.name }}
@@ -30,11 +30,8 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: MODEL_PORT
-          volumeMounts:
-            - name: model-data
-              mountPath: {{ .Values.model.storage.mountPath | default "/app/data" }}
-      volumes:
-        - name: model-data
-          hostPath:
-            path: /operation/model
-            type: DirectoryOrCreate
+            - name: MODEL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: MODEL_URL

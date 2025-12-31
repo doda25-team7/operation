@@ -1,3 +1,6 @@
+# Downloaded from https://github.com/flannel-io/flannel/blob/dd2af12ab288a080835050c2aebda23ce93584d9/Documentation/kube-flannel.yml
+# no edits where made
+
 ---
 kind: Namespace
 apiVersion: v1

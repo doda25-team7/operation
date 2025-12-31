@@ -1,12 +1,13 @@
 ---
 - name: Setup Kubernetes worker node
   hosts: all
-  become: yes
   tasks:
-    - name: Wait for join command
-      wait_for:
-        path: /vagrant/join-command.sh
-        timeout: 300
+    - name: Generate join command
+      delegate_to: "ctrl"
+      ansible.builtin.command: kubeadm token create --print-join-command
+      register: join_command
 
-    - name: Run Join Command
-      shell: sh /vagrant/join-command.sh
+    - name: Run join command
+      become: true
+      ansible.builtin.shell:
+        cmd: "{{ join_command.stdout }}"

@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-NUM_WORKERS = 1
+NUM_WORKERS = 2
 
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-24.04"
@@ -19,14 +19,14 @@ Vagrant.configure("2") do |config|
     end
 
     # Ansible provisioning for control node - Step 3
-    ctrl.vm.provision "ansible_local" do |ansible|
+    ctrl.vm.provision "ansible" do |ansible|
       ansible.playbook = "ansible/general.yaml"
       ansible.extra_vars = {
         num_workers: NUM_WORKERS # Step 8 -> Technicaly not needed here but since general.yaml uses it is good practice to pass it to all VMs
       }
     end
 
-    ctrl.vm.provision "ansible_local" do |ansible|
+    ctrl.vm.provision "ansible" do |ansible|
       ansible.playbook = "ansible/ctrl.yaml"
     end
 
@@ -45,14 +45,14 @@ Vagrant.configure("2") do |config|
       end
 
       # Ansible provisioning for worker nodes - Step 3
-      node.vm.provision "ansible_local" do |ansible|
+      node.vm.provision "ansible" do |ansible|
         ansible.playbook = "ansible/general.yaml"
         ansible.extra_vars = {
           num_workers: NUM_WORKERS
         }
       end
 
-      node.vm.provision "ansible_local" do |ansible|
+      node.vm.provision "ansible" do |ansible|
         ansible.playbook = "ansible/node.yaml"
       end
     end

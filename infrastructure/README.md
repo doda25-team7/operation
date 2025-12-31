@@ -346,7 +346,13 @@ Routes external traffic into the cluster. Maps `http://doda.local` → `app-serv
 Stores configuration (non-sensitive data) like URLs, ports, feature flags. One ConfigMap can be used by multiple Pods.
 
 ### Secrets 
-TODO
+The SSL/TLS keys are automatically deployed into the Cluster. See ansible/files/SSL-TLS-keys/README.md for important note. To verify that the keys are served:
+
+```bash
+echo | openssl s_client -showcerts -servername dashboard.local -connect dashboard.local:443 2>/dev/null | openssl x509 -inform pem -noout -text
+```
+
+This should give the serial number of: `37:58:d4:01:e0:b5:75:bc:a7:b7:cb:be:33:74:83:25:b4:0a:29:f7`
 
 ## How They Connect
 

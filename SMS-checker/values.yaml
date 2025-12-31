@@ -1,27 +1,17 @@
 app:
   name: app-service
   image: ghcr.io/doda25-team7/app-service:latest
+  tag: latest
   port: 8080
   host: doda.local
-  metrics:
-    enabled: true
-    port: 8080
-    path: /actuator/prometheus
+  replicaCount: 1
 
 model:
   name: model-service
   image: ghcr.io/doda25-team7/model-service:latest
   port: 8081
-  storage:
-    size: 1Gi
-    mountPath: /app/data
-  metrics:
-    enabled: true
-    port: 8081
-    path: /metrics
+  model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
+  replicaCount: 1
 
-monitoring:
-  enabled: true
-  prometheusRelease: myprom
-  scrapeInterval: 30s
-replicaCount: 1
+ingress:
+  className: nginx
