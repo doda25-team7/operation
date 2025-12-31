@@ -1,0 +1,24 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: {{ .Release.Name }}-discord-config
+  labels:
+    alertmanagerConfig: {{ .Release.Name }}-discord
+spec:
+  receivers:
+    - name: discord
+      discordConfigs:
+        - apiURL:
+            name: alertmanager-discord-webhook
+            key: webhook-url
+          sendResolved: true
+          title: '{{ `{{ .Status | toUpper }}` }}: {{ `{{ .CommonAnnotations.summary }}` }}'
+          message: '{{ `{{ .CommonAnnotations.description }}` }}'
+  route:
+    receiver: discord
+    groupBy: ['alertname']
+    groupWait: 10s
+    groupInterval: 10s
+    repeatInterval: 12h
+{{- end }}

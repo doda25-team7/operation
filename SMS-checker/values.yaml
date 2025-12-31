@@ -15,3 +15,7 @@ model:
 
 ingress:
   className: nginx
+
+monitoring:
+  enabled: true
+  prometheusRelease: myprom

@@ -72,3 +72,26 @@ In a second terminal do:
 kubectl port-forward -n sms svc/app-app-service 8080:8080
 ```
 Open http://localhost:8080/metrics in browser.
+
+
+### How to enable alerting to Discord.
+
+1. Enabling alerting by updating Prometheus installation.
+```bash
+kubectl label namespace sms alertmanager-config=enabled --overwrite
+helm upgrade myprom prom-repo/kube-prometheus-stack \
+  -n monitoring \
+  --set alertmanager.alertmanagerSpec.alertmanagerConfigNamespaceSelector.matchLabels.alertmanager-config=enabled
+```
+
+2. Create webhook secret.
+```bash
+kubectl create secret generic alertmanager-discord-webhook \
+  --from-literal=webhook-url='YOUR_DISCORD_WEBHOOK_URL' \
+  -n sms
+```
+
+3. Deploy the application
+```bash
+helm upgrade --install app ./SMS-checker -n sms --create-namespace
+```
