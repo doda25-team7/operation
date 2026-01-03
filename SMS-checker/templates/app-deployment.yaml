@@ -19,6 +19,11 @@ spec:
           image: {{ .Values.app.image }}
           ports:
             - containerPort: {{ .Values.app.port }}
+              name: http
+            {{- if and (hasKey .Values.app "metrics") .Values.app.metrics.enabled (ne .Values.app.metrics.port .Values.app.port) }}
+            - containerPort: {{ .Values.app.metrics.port }}
+              name: metrics
+            {{- end }}
           env:
             - name: MODEL_HOST
               valueFrom:
