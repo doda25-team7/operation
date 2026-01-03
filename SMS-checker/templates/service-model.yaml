@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.model.name }}
+  name: {{ .Release.Name }}-{{ .Values.model.name }}
   labels:
-    app: {{ .Values.model.name }}
+    app: {{ .Release.Name }}-{{ .Values.model.name }}
 spec:
   selector:
-    app: {{ .Values.model.name }}
+    app: {{ .Release.Name }}-{{ .Values.model.name }}
   ports:
-    - port: {{ .Values.model.port }}
+    - name: http
+      port: {{ .Values.model.port }}
       targetPort: {{ .Values.model.port }}
