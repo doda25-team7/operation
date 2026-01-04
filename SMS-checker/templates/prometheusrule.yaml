@@ -4,7 +4,7 @@ kind: PrometheusRule
 metadata:
   name: {{ .Release.Name }}-alerts
   labels:
-    release: {{ .Values.monitoring.prometheusRelease }}
+    release: {{ .Release.Name }}
 spec:
   groups:
     - name: app-alerts
