@@ -75,4 +75,46 @@ docker compose down --rmi all
 First the Kubernetes cluser should be deployed. 
 More information on deploying the Kubernetes cluser can be found in infrastructure/README.md.
 
-TODO: continue this readme section.
+## Deploying with Helm
+
+The application can be deployed to a Kubernetes cluster using the provided Helm chart.
+
+### Prerequisites
+- A running Kubernetes cluster (e.g., Minikube, Kind).
+- `helm` CLI installed.
+- `kubectl` configured.
+
+### Installation
+
+1. Update dependencies (includes Prometheus/Grafana stack):
+    ```bash
+    helm dependency update operation/SMS-checker
+    ```
+2. Install the chart:
+    ```bash
+    helm install sms-stack operation/SMS-checker
+    ```
+
+### Monitoring (Prometheus & Grafana)
+
+The deployment acts as a complete stack, including **Prometheus** for metrics collection and **Grafana** for visualization.
+
+- **Prometheus** scrapes application metrics exposed at `/actuator/prometheus`.
+- **Grafana** is pre-configured with two dashboards:
+    1. **SMS App Metrics**: Shows request rates, prediction ratios, and latencies.
+    2. **SMS System Metrics**: Shows system resource usage.
+
+**Accessing Grafana:**
+1. Forward the port:
+   ```bash
+   kubectl port-forward svc/sms-stack-grafana 8080:80
+   ```
+2. Open [http://localhost:8080](http://localhost:8080).
+3. Default credentials (from `kube-prometheus-stack`): `admin` / `prom-operator` (or check secret `sms-stack-grafana`).
+4. Dashboards are automatically loaded under `Dashboards` -> `Browse`.
+
+### Manual Dashboard Import
+If you need to import dashboards manually:
+1. JSON files are located in `operation/SMS-checker/dashboards/`.
+2. In Grafana UI, go to **Dashboards** -> **New** -> **Import**.
+3. Upload `app-metrics.json` or `system-metrics.json`.
