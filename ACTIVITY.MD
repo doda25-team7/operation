@@ -59,6 +59,7 @@ Worked on enabling monitoring using prometheus. Also finished up local provision
 Further progression with the monitoring setup using prometheus. Also worked on improving the helm chart and adding a MonitorController.java in app-service.
 
 ### Week Q2.7 (Jan 5 - )
+- Francisco - Working on Traffic Management - https://github.com/doda25-team7/operation/pull/7
 
 ### Week Q2.8 (Jan 12 - )
 
