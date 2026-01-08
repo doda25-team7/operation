@@ -4,3 +4,4 @@ join-command.sh
 infrastructure_*/
 .vagrant/
 .ansible/
+.ansible_*
