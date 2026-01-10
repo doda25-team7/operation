@@ -7,11 +7,23 @@ app:
   replicaCount: 1
 
 model:
-  name: model-service
-  image: ghcr.io/doda25-team7/model-service:latest
+  # Common model configuration
+  primary_service_name: model-service
   port: 8081
-  model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
   replicaCount: 1
+  metrics:
+    enabled: true
+    port: 9090
+  model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
+
+  # List of model versions to deploy
+  versions:
+    - version: v1
+      name: model-service
+      image: ghcr.io/doda25-team7/model-service:0.0.11
+    - version: v2
+      name: model-service-v2
+      image: ghcr.io/doda25-team7/model-service:0.0.12
 
 ingress:
   className: nginx
@@ -19,3 +31,6 @@ ingress:
 monitoring:
   enabled: true
   prometheusRelease: myprom
+
+istio:
+  enabled: true

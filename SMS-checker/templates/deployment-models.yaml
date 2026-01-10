@@ -1,0 +1,42 @@
+{{- range .Values.model.versions }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-{{ .name }}
+  labels:
+    app: {{ $.Release.Name }}-{{ .name }}
+    version: {{ .version }}
+spec:
+  replicas: {{ $.Values.model.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $.Release.Name }}-{{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $.Release.Name }}-{{ .name }}
+        version: {{ .version }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: {{ .image }}
+          ports:
+            - containerPort: {{ $.Values.model.port }}
+              name: http
+            {{- if $.Values.model.metrics.enabled }}
+            - containerPort: {{ $.Values.model.metrics.port }}
+              name: metrics
+            {{- end }}
+          env:
+            - name: MODEL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $.Release.Name }}-config
+                  key: MODEL_PORT
+            - name: MODEL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $.Release.Name }}-config
+                  key: MODEL_URL
+{{- end }}

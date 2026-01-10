@@ -1,0 +1,19 @@
+{{- if and .Values.monitoring.enabled .Values.model.metrics.enabled }}
+{{- range .Values.model.versions }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $.Release.Name }}-{{ .name }}-monitor
+  labels:
+    release: {{ $.Values.monitoring.prometheusRelease }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $.Release.Name }}-{{ .name }}
+  endpoints: 
+    - port: metrics
+      path: /metrics
+      interval: 10s
+{{- end }}
+{{- end }}

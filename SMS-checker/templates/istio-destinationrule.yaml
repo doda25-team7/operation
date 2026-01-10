@@ -1,0 +1,15 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-model-service
+spec:
+  host: {{ .Release.Name }}-{{ .Values.model.primary_service_name }}
+  subsets:
+  - name: v1
+    labels:
+      app: {{ .Release.Name }}-model-service
+  - name: v2
+    labels:
+      app: {{ .Release.Name }}-model-service-v2
+{{- end }}

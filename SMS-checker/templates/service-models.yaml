@@ -1,0 +1,22 @@
+{{- range .Values.model.versions }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-{{ .name }}
+  labels:
+    app: {{ $.Release.Name }}-{{ .name }}
+    version: {{ .version }}
+spec:
+  selector:
+    app: {{ $.Release.Name }}-{{ .name }}
+  ports:
+    - name: http
+      port: {{ $.Values.model.port }}
+      targetPort: http
+    {{- if $.Values.model.metrics.enabled }}
+    - name: metrics
+      port: {{ $.Values.model.metrics.port }}
+      targetPort: metrics
+    {{- end }}
+{{- end }}

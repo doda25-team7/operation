@@ -1,0 +1,18 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-model-service-mirror
+spec:
+  hosts:
+  - {{ .Release.Name }}-{{ .Values.model.primary_service_name }}
+  http:
+  - route:
+    - destination:
+        host: {{ .Release.Name }}-{{ .Values.model.primary_service_name }}
+        subset: v1
+      weight: 100
+    mirror:
+      host: {{ .Release.Name }}-{{ .Values.model.primary_service_name }}
+      subset: v2
+{{- end }}
