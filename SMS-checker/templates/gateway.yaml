@@ -1,9 +1,9 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
   name: {{ .Release.Name }}-gateway
-  labels:
-    {{- include "SMS-checker.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     istio: {{ .Values.istio.ingressGatewayLabel | default "ingressgateway" }}
@@ -14,3 +14,4 @@ spec:
         protocol: HTTP
       hosts:
         - {{ .Values.ingress.host | default "doda.local" }}
+{{- end }}
