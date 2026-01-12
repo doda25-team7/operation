@@ -2,6 +2,15 @@
 
 This directory contains the Vagrant configuration for setting up a Kubernetes cluster with VirtualBox.
 
+## Cross-Platform Compatibility
+
+This setup works on both **Linux** and **macOS** (Intel and Apple Silicon):
+- **Linux x86_64** → Uses amd64 VMs and binaries
+- **macOS Intel** → Uses amd64 VMs and binaries  
+- **macOS Apple Silicon** → Uses arm64 VMs and binaries
+
+The Ansible playbooks automatically detect the VM architecture and download the correct binaries for Helm and Istio.
+
 ## Prerequisites
 
 - [Vagrant](https://www.vagrantup.com/downloads) installed 
@@ -317,6 +326,51 @@ Copy the entire token that is displayed (it will be a long string).
 
 ## NOTES
 login the ctrl and use `systemctl restart` to restart failed service of any service failed in k8s
+
+---
+
+## Istio Traffic Management Testing
+
+After setting up the cluster and deploying the SMS-Checker Helm chart, you can test Istio traffic management.
+
+### Quick Verification Commands
+
+```bash
+# Check Istio is running
+vagrant ssh ctrl -c "kubectl get pods -n istio-system"
+
+# Check IngressGateway service
+vagrant ssh ctrl -c "kubectl get svc -n istio-system istio-ingressgateway"
+
+# Get the NodePort for HTTP (port 80)
+vagrant ssh ctrl -c "kubectl get svc -n istio-system istio-ingressgateway -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}'"
+
+# Check all Istio resources deployed by Helm chart
+vagrant ssh ctrl -c "kubectl get gateway,virtualservice,destinationrule"
+```
+
+### Test the Application
+
+```bash
+# Basic test - should return "Hello World!" or similar
+# Use MetalLB External IP (typically 192.168.56.91 for Istio)
+curl -H "Host: doda.local" http://192.168.56.91/
+
+# Test traffic split (run multiple times, ~90% stable, ~10% canary)
+for i in {1..10}; do
+  curl -s -H "Host: doda.local" http://192.168.56.91/ -D - 2>&1 | grep -i "x-version"
+done
+
+# Test sticky session - force canary
+curl -H "Host: doda.local" -H "x-version: canary" http://192.168.56.91/ -i
+
+# Test sticky session - force stable
+curl -H "Host: doda.local" -H "x-version: stable" http://192.168.56.91/ -i
+```
+
+For complete testing documentation, see `SMS-checker/README.md`.
+
+---
 
 # Kubernetes Setup
 
