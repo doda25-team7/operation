@@ -1,20 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app.name }}
+  name: {{ .Release.Name }}-{{ .Values.app.name }}
   labels:
-    app: {{ .Values.app.name }}
-    version: stable
+    app: {{ .Release.Name }}-{{ .Values.app.name }}
 spec:
-  replicas: {{ .Values.replicaCount | default 1 }}
+  replicas: {{ .Values.app.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.app.name }}
+      app: {{ .Release.Name }}-{{ .Values.app.name }}
       version: stable
   template:
     metadata:
       labels:
-        app: {{ .Values.app.name }}
+        app: {{ .Release.Name }}-{{ .Values.app.name }}
         version: stable
       annotations:
         sidecar.istio.io/inject: "true"
@@ -24,6 +23,11 @@ spec:
           image: {{ .Values.app.image }}
           ports:
             - containerPort: {{ .Values.app.port }}
+              name: http
+            {{- if and (hasKey .Values.app "metrics") .Values.app.metrics.enabled (ne .Values.app.metrics.port .Values.app.port) }}
+            - containerPort: {{ .Values.app.metrics.port }}
+              name: metrics
+            {{- end }}
           env:
             - name: MODEL_HOST
               valueFrom:

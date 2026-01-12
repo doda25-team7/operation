@@ -1,13 +1,17 @@
 app:
   name: app-service
   image: ghcr.io/doda25-team7/app-service:latest
+  tag: latest
   port: 8080
+  host: doda.local
+  replicaCount: 1
 
 model:
   name: model-service
   image: ghcr.io/doda25-team7/model-service:latest
   port: 8081
   model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
+  replicaCount: 1
 
 ingress:
   enabled: true
@@ -27,3 +31,8 @@ canary:
   stableWeight: 90
   canaryWeight: 10
 
+  className: nginx
+
+monitoring:
+  enabled: true
+  prometheusRelease: myprom
