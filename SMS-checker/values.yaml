@@ -2,7 +2,6 @@ app:
   name: app-service
   image: ghcr.io/doda25-team7/app-service:latest
   port: 8080
-  host: doda.local
 
 model:
   name: model-service
@@ -10,4 +9,21 @@ model:
   port: 8081
   model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
 
+ingress:
+  enabled: true
+  host: doda.local
+
 replicaCount: 1
+
+istio:
+  enabled: true
+  ingressGatewayLabel: ingressgateway
+
+canary:
+  enabled: true
+  appImage: ghcr.io/doda25-team7/app-service:latest # To be changed when canary app image is deployed
+  modelImage: ghcr.io/doda25-team7/model-service:latest
+  replicaCount: 1
+  stableWeight: 90
+  canaryWeight: 10
+
