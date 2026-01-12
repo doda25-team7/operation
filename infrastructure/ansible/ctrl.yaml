@@ -63,10 +63,18 @@
 
     - name: Install Helm via binary
       block:
-        - name: Download Helm
+        - name: Get system architecture
+          ansible.builtin.command: uname -m
+          register: system_arch
+          changed_when: false
+
+        - name: Set Helm architecture variable
+          ansible.builtin.set_fact:
+            helm_arch: "{{ 'arm64' if system_arch.stdout == 'aarch64' else 'amd64' }}"
+
+        - name: Download Helm (architecture-aware)
           ansible.builtin.get_url:
-            url: https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
-            checksum: sha256:f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651
+            url: "https://get.helm.sh/helm-v3.14.0-linux-{{ helm_arch }}.tar.gz"
             dest: /tmp/helm.tar.gz
             mode: '0644'
 
@@ -80,13 +88,13 @@
           become: true
           ansible.builtin.copy:
             remote_src: true
-            src: /tmp/linux-amd64/helm
+            src: "/tmp/linux-{{ helm_arch }}/helm"
             dest: /usr/local/bin/helm
             mode: '0755'
           register: helm_installed
 
         - name: Remove temporary extraction folder
           ansible.builtin.file:
-            path: /tmp/linux-amd64
+            path: "/tmp/linux-{{ helm_arch }}"
             state: absent
           when: helm_installed is changed
