@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.model.name }}-canary
+  name: {{ .Release.Name }}-{{ .Values.model.name }}-canary
   labels:
-    app: {{ .Values.model.name }}
+    app: {{ .Release.Name }}-{{ .Values.model.name }}
     version: canary
 spec:
   replicas: {{ .Values.canary.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Values.model.name }}
+      app: {{ .Release.Name }}-{{ .Values.model.name }}
       version: canary
   template:
     metadata:
       labels:
-        app: {{ .Values.model.name }}
+        app: {{ .Release.Name }}-{{ .Values.model.name }}
         version: canary
       annotations:
         sidecar.istio.io/inject: "true"

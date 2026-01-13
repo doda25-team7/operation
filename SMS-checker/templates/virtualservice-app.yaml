@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: {{ .Release.Name }}-virtualservice
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
 spec:
   hosts:
@@ -17,7 +17,7 @@ spec:
               exact: "canary"
       route:
         - destination:
-            host: {{ .Values.app.name }}
+            host: {{ .Release.Name }}-{{ .Values.app.name }}
             subset: canary
             port:
               number: {{ .Values.app.port }}
@@ -32,7 +32,7 @@ spec:
               exact: "stable"
       route:
         - destination:
-            host: {{ .Values.app.name }}
+            host: {{ .Release.Name }}-{{ .Values.app.name }}
             subset: stable
             port:
               number: {{ .Values.app.port }}
@@ -43,7 +43,7 @@ spec:
 
     - route:
         - destination:
-            host: {{ .Values.app.name }}
+            host: {{ .Release.Name }}-{{ .Values.app.name }}
             subset: stable
             port:
               number: {{ .Values.app.port }}
@@ -53,7 +53,7 @@ spec:
               set:
                 x-version: "stable"
         - destination:
-            host: {{ .Values.app.name }}
+            host: {{ .Release.Name }}-{{ .Values.app.name }}
             subset: canary
             port:
               number: {{ .Values.app.port }}
@@ -65,7 +65,7 @@ spec:
 {{- else }}
     - route:
         - destination:
-            host: {{ .Values.app.name }}
+            host: {{ .Release.Name }}-{{ .Values.app.name }}
             subset: stable
             port:
               number: {{ .Values.app.port }}

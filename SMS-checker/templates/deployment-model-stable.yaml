@@ -1,15 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.model.name }}
+  name: {{ .Release.Name }}-{{ .Values.model.name }}-stable
   labels:
     app: {{ .Release.Name }}-{{ .Values.model.name }}
     version: stable   
 spec:
-  replicas: {{ .Values.model.replicaCount }}
+  replicas: {{ .Values.model.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.model.name }}
+      version: stable
   template:
     metadata:
       labels:

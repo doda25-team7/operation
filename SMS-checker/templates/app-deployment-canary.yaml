@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app.name }}-canary
+  name: {{ .Release.Name }}-{{ .Values.app.name }}-canary
   labels:
-    app: {{ .Values.app.name }}
+    app: {{ .Release.Name }}-{{ .Values.app.name }}
     version: canary
 spec:
   replicas: {{ .Values.canary.replicaCount | default 1 }}
