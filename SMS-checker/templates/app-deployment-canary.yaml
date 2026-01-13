@@ -1,33 +1,30 @@
+{{- if .Values.canary.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.app.name }}
+  name: {{ .Values.app.name }}-canary
   labels:
-    app: {{ .Release.Name }}-{{ .Values.app.name }}
+    app: {{ .Values.app.name }}
+    version: canary
 spec:
-  replicas: {{ .Values.app.replicaCount }}
+  replicas: {{ .Values.canary.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.app.name }}
-      version: stable
+      app: {{ .Values.app.name }}
+      version: canary
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Values.app.name }}
-        version: stable
+        app: {{ .Values.app.name }}
+        version: canary
       annotations:
         sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: {{ .Values.app.name }}
-          image: {{ .Values.app.image }}
+          image: {{ .Values.canary.appImage | default .Values.app.image }}
           ports:
             - containerPort: {{ .Values.app.port }}
-              name: http
-            {{- if and (hasKey .Values.app "metrics") .Values.app.metrics.enabled (ne .Values.app.metrics.port .Values.app.port) }}
-            - containerPort: {{ .Values.app.metrics.port }}
-              name: metrics
-            {{- end }}
           env:
             - name: MODEL_HOST
               valueFrom:
@@ -39,3 +36,5 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: APP_PORT
+{{- end }}
+

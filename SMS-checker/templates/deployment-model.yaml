@@ -4,6 +4,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.model.name }}
   labels:
     app: {{ .Release.Name }}-{{ .Values.model.name }}
+    version: stable   
 spec:
   replicas: {{ .Values.model.replicaCount }}
   selector:
@@ -13,6 +14,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Values.model.name }}
+        version: stable
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: {{ .Values.model.name }}

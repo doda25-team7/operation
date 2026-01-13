@@ -1,0 +1,74 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-virtualservice
+  namespace: {{ .Release.Namespace }}
+spec:
+  hosts:
+    - {{ .Values.ingress.host | default "doda.local" }}
+  gateways:
+    - {{ .Release.Name }}-gateway
+  http:
+{{- if .Values.canary.enabled }}
+    - match:
+        - headers:
+            x-version:
+              exact: "canary"
+      route:
+        - destination:
+            host: {{ .Values.app.name }}
+            subset: canary
+            port:
+              number: {{ .Values.app.port }}
+          headers:
+            response:
+              set:
+                x-version: "canary" # Added header responses for better logging and testing sticky sessions
+
+    - match:
+        - headers:
+            x-version:
+              exact: "stable"
+      route:
+        - destination:
+            host: {{ .Values.app.name }}
+            subset: stable
+            port:
+              number: {{ .Values.app.port }}
+          headers:
+            response:
+              set:
+                x-version: "stable"
+
+    - route:
+        - destination:
+            host: {{ .Values.app.name }}
+            subset: stable
+            port:
+              number: {{ .Values.app.port }}
+          weight: {{ .Values.canary.stableWeight | default 90 }}
+          headers:
+            response:
+              set:
+                x-version: "stable"
+        - destination:
+            host: {{ .Values.app.name }}
+            subset: canary
+            port:
+              number: {{ .Values.app.port }}
+          weight: {{ .Values.canary.canaryWeight | default 10 }}
+          headers:
+            response:
+              set:
+                x-version: "canary"
+{{- else }}
+    - route:
+        - destination:
+            host: {{ .Values.app.name }}
+            subset: stable
+            port:
+              number: {{ .Values.app.port }}
+{{- end }}
+{{- end }}
+

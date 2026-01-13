@@ -1,0 +1,40 @@
+{{- if .Values.canary.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.model.name }}-canary
+  labels:
+    app: {{ .Values.model.name }}
+    version: canary
+spec:
+  replicas: {{ .Values.canary.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .Values.model.name }}
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.model.name }}
+        version: canary
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: {{ .Values.model.name }}
+          image: {{ .Values.canary.modelImage | default .Values.model.image }}
+          ports:
+            - containerPort: {{ .Values.model.port }}
+          env:
+            - name: MODEL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: MODEL_PORT
+            - name: MODEL_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: MODEL_URL
+{{- end }}
+

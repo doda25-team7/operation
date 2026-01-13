@@ -225,10 +225,18 @@
             path: /usr/local/bin/istioctl
             state: absent
 
-        - name: Download Istio tarball
+        - name: Get system architecture
+          ansible.builtin.command: uname -m
+          register: system_arch
+          changed_when: false
+
+        - name: Set Istio architecture variable
+          ansible.builtin.set_fact:
+            istio_arch: "{{ 'arm64' if system_arch.stdout == 'aarch64' else 'amd64' }}"
+
+        - name: Download Istio tarball (architecture-aware)
           ansible.builtin.get_url:
-            url: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-amd64.tar.gz
-            checksum: sha256:2a8bc831fe6ceeb02df31651734d06e0954006a8f4780f40d8b5ad60f34471fd
+            url: "https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-{{ istio_arch }}.tar.gz"
             dest: /tmp/istio.tar.gz
             mode: '0644'
 
