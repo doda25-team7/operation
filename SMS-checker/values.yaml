@@ -14,6 +14,23 @@ model:
   replicaCount: 1
 
 ingress:
+  enabled: true
+  host: doda.local
+
+replicaCount: 1
+
+istio:
+  enabled: true
+  ingressGatewayLabel: ingressgateway
+
+canary:
+  enabled: true
+  appImage: ghcr.io/doda25-team7/app-service:latest # To be changed when canary app image is deployed
+  modelImage: ghcr.io/doda25-team7/model-service:latest
+  replicaCount: 1
+  stableWeight: 90
+  canaryWeight: 10
+
   className: nginx
 
 monitoring:

@@ -1,0 +1,32 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.app.name }}-destinationrule
+  namespace: {{ .Release.Namespace }}
+spec:
+  host: {{ .Values.app.name }}
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.model.name }}-destinationrule
+  namespace: {{ .Release.Namespace }}
+spec:
+  host: {{ .Values.model.name }}
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
+{{- end }}
+

@@ -1,0 +1,28 @@
+{{- if and .Values.istio.enabled .Values.canary.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.model.name }}-virtualservice
+  namespace: {{ .Release.Namespace }}
+spec:
+  hosts:
+    - {{ .Values.model.name }}
+  http:
+    - match:
+        - sourceLabels:
+            version: canary
+      route:
+        - destination:
+            host: {{ .Values.model.name }}
+            subset: canary
+            port:
+              number: {{ .Values.model.port }}
+
+    - route:
+        - destination:
+            host: {{ .Values.model.name }}
+            subset: stable
+            port:
+              number: {{ .Values.model.port }}
+{{- end }}
+
