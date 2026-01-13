@@ -11,6 +11,6 @@ spec:
       app: {{ .Release.Name }}-{{ .Values.app.name }}
   endpoints: 
     - port: http
-      path: /actuator/prometheus
+      path: /metrics
       interval: 10s
 {{- end }}
