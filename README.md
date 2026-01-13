@@ -41,7 +41,9 @@ The following repositories are used in this project:
 
 ## Getting Started using Docker Compose 
 
-For development purposes a Docker Compose file describing the container setup have been included. To use Docker Compose, a modern version of Docker should to be installed. With Docker installed the containers can be started up using:
+For development purposes a Docker Compose file describing the container setup have been included. To use Docker Compose, a modern version of Docker should to be installed. To configure the Docker deployment, change the config in the .env file. 
+
+With Docker installed the containers can be started up using:
 ```bash
 docker compose up -d
 ```
@@ -55,10 +57,9 @@ docker compose logs app-service --follow
 docker compose logs model-service --follow
 ```
 
-
 ### Accessing the services
 
-If the containers are healthy, http://localhost:8080 should show "Hello World!" and the current version of [lib-version](https://github.com/doda25-team7/lib-version). The SMS-checker frontend should be accessible on [http://localhost:8080/sms](http://localhost:8080/sms).
+If the Docker containers are created with the default `.env` configuration file, `app-service` should be accessable on: [localhost:8080](http://localhost:8080). Visiting the root of this page should show "Hello World!" and the current version of [lib-version](https://github.com/doda25-team7/lib-version). The SMS-checker frontend should be accessible on [http://localhost:8080/sms](http://localhost:8080/sms).
 
 ### Cleanup
 
@@ -72,7 +73,49 @@ docker compose down --rmi all
 ```
 ## Getting Stated using Kubernetes
 
-First the Kubernetes cluser should be deployed. 
+To get started deploying SMS-checker to Kubernetes, a Kubernetes cluster first has to be deployed. The code that was used to create the Kubernetes cluster that SMS-checker uses, accompnied by a README.md can be find in the [infrastructure](infrastructure) folder in the root of this repository. SMS-checker has been verified to work on this Kubernetes cluster, but it should also work on any other deployment.
+
+To get started using the infrastructure configuraiton provided run the following: 
+```bash
+cd infrastructure
+vagrant up
+ansible-playbook --inventory .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ./ansible/finalization.yaml 
+```
 More information on deploying the Kubernetes cluser can be found in infrastructure/README.md.
 
-TODO: continue this readme section.
+To deploy SMS-checker into a Kubernetes cluster, there is a Helm chart [SMS-checker](SMS-checker), in the root of the repository. To deploy the helm chart, using the infrastructure as described above, run the following code from the infrastructure folder:
+```bash
+vagrant ssh ctrl
+cd /operation
+helm upgrade --install SMS-checker SMS-checker --namespace prod-SMS-checker --create-namespace
+```
+To enable prometheus based monitoring:
+```bash
+vagrant ssh ctrl
+helm repo add prom-repo https://prometheus-community.github.io/helm-charts
+helm repo update
+helm upgrade myprom prom-repo/kube-prometheus-stack --namespace monitoring --create-namespace
+```
+
+To access the Prometheus UI run the following:
+```bash
+kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus 9090:9090
+
+curl http://localhost:8080/metrics
+```
+
+To enable alerting in Discord, first enable to the alertmanager
+```bash
+kubectl label namespace sms alertmanager-config=enabled --overwrite
+helm upgrade myprom prom-repo/kube-prometheus-stack \
+  --namespace monitoring \
+  --set alertmanager.alertmanagerSpec.alertmanagerConfigNamespaceSelector.matchLabels.alertmanager-config=enabled
+```
+Then create a webhook URL as described on [the "Intro to Webhooks" guide created by Discord](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks). To create a Kubernetes Secret to hold this URL, run this, replaceing `YOUR_DISCORD_WEBHOOK_URL` with your Discord Webhook URL. 
+```bash
+kubectl create secret generic alertmanager-discord-webhook \
+  --from-literal=webhook-url='YOUR_DISCORD_WEBHOOK_URL' \
+  --namespace prod-SMS-checker
+```
+
+After this the application has to be redeployed.
