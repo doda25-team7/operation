@@ -83,12 +83,25 @@ ansible-playbook --inventory .vagrant/provisioners/ansible/inventory/vagrant_ans
 ```
 More information on deploying the Kubernetes cluser can be found in infrastructure/README.md.
 
+## Deploying with Helm
+
 To deploy SMS-checker into a Kubernetes cluster, there is a Helm chart [SMS-checker](SMS-checker), in the root of the repository. To deploy the helm chart, using the infrastructure as described above, run the following code from the infrastructure folder:
 ```bash
 vagrant ssh ctrl
 cd /operation
 helm upgrade --install SMS-checker SMS-checker --namespace prod-SMS-checker --create-namespace
 ```
+
+The deployment acts as a complete stack, including **Prometheus** for metrics collection and **Grafana** for visualization.
+
+### Monitoring (Prometheus & Grafana)
+
+- **Prometheus** scrapes application metrics exposed at `/actuator/prometheus`.
+    1. **Notifications**: Sends a notification using a Discord webhook when a metric has reached a threshold. 
+- **Grafana** is pre-configured with two dashboards:
+    1. **SMS App Metrics**: Shows request rates, prediction ratios, and latencies.
+    2. **SMS System Metrics**: Shows system resource usage.
+
 To enable prometheus based monitoring:
 ```bash
 vagrant ssh ctrl
@@ -97,6 +110,8 @@ helm repo update
 helm upgrade myprom prom-repo/kube-prometheus-stack --namespace monitoring --create-namespace
 ```
 
+### To access Prometheus
+
 To access the Prometheus UI run the following:
 ```bash
 kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus 9090:9090
@@ -104,18 +119,33 @@ kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus 909
 curl http://localhost:8080/metrics
 ```
 
-To enable alerting in Discord, first enable to the alertmanager
+### Enabling Discord notifications
+
+To enable alerting in Discord, first enable to the alertmanager:
 ```bash
 kubectl label namespace sms alertmanager-config=enabled --overwrite
 helm upgrade myprom prom-repo/kube-prometheus-stack \
   --namespace monitoring \
   --set alertmanager.alertmanagerSpec.alertmanagerConfigNamespaceSelector.matchLabels.alertmanager-config=enabled
 ```
-Then create a webhook URL as described on [the "Intro to Webhooks" guide created by Discord](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks). To create a Kubernetes Secret to hold this URL, run this, replaceing `YOUR_DISCORD_WEBHOOK_URL` with your Discord Webhook URL. 
+Then create a webhook URL as described on [the "Intro to Webhooks" guide created by Discord](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks). To create a Kubernetes Secret to hold this URL, run this, replacing `YOUR_DISCORD_WEBHOOK_URL` with your Discord Webhook URL:
 ```bash
 kubectl create secret generic alertmanager-discord-webhook \
   --from-literal=webhook-url='YOUR_DISCORD_WEBHOOK_URL' \
   --namespace prod-SMS-checker
 ```
 
-After this the application has to be redeployed.
+### To access Grafana:
+1. Forward the port:
+   ```bash
+   kubectl port-forward svc/sms-stack-grafana 8080:80
+   ```
+2. Open [http://localhost:8080](http://localhost:8080).
+3. Default credentials (from `kube-prometheus-stack`): `admin` / `prom-operator` (or check secret `sms-stack-grafana`).
+4. Dashboards are automatically loaded under `Dashboards` -> `Browse`.
+
+### Manual Dashboard Import
+Sometimes the dashboards are not imported automatically, if you need to import dashboards manually run the following:
+1. JSON files are located in `operation/SMS-checker/dashboards/`.
+2. In Grafana UI, go to **Dashboards** -> **New** -> **Import**.
+3. Upload `app-metrics.json` or `system-metrics.json`.

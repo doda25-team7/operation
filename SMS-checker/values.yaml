@@ -35,4 +35,19 @@ canary:
 
 monitoring:
   enabled: true
-  prometheusRelease: myprom
+  prometheusRelease: "" # No longer needed as we use Release.Name, but keeping for compatibility if referenced elsewhere
+
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      # serviceMonitorSelector defaults to matching release label, which is what we want.
+  grafana:
+    enabled: true
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        searchNamespace: ALL
+  alertmanager:
+    enabled: true

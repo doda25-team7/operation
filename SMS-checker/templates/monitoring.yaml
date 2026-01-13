@@ -4,13 +4,13 @@ kind: ServiceMonitor
 metadata:
   name: {{ .Release.Name }}-app-monitor
   labels:
-    release: {{ .Values.monitoring.prometheusRelease }}
+    release: {{ .Release.Name }}
 spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.app.name }}
   endpoints: 
     - port: http
-      path: /metrics
+      path: /actuator/prometheus
       interval: 10s
 {{- end }}
