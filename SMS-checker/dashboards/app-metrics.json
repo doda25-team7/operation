@@ -109,10 +109,21 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "rate(frontend_requests_total[1m])",
-          "legendFormat": "{{endpoint}}",
+          "expr": "rate(index_requests_total[1m])",
+          "legendFormat": "index",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "rate(predict_requests_total[1m])",
+          "legendFormat": "predict",
+          "range": true,
+          "refId": "B"
         }
       ]
     },
@@ -166,7 +177,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "prediction_ratio",
+          "expr": "predict_requests_total / index_requests_total",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -261,7 +272,7 @@
           "range": true,
           "refId": "A"
         },
-         {
+        {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
