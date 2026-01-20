@@ -26,7 +26,7 @@ Group meeting on 25 nov
 - Tess: Implemented the model training in CI https://github.com/doda25-team7/model-service/pull/5
 ### Week Q2.4 (Dec 1 - )
 - Francisco: Will work on moving the docker containerization to kubernetes. F1 of the assignment 3
-Due to sickness and being blocked by the completion of the previous assignment couldn't finish it.
+Due to sickness and being blocked by the completion of the previous assignment couldn't finish it. doda25-team7/infrastructure#8 
 
 - Maciej: Fixed last assginment(problems with the dashboard): https://github.com/doda25-team7/infrastructure/pull/7
 
