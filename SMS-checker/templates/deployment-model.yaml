@@ -10,6 +10,7 @@ spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.model.name }}
+      version: stable
   template:
     metadata:
       labels:

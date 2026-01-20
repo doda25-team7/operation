@@ -1,0 +1,17 @@
+{{- if .Values.shadow.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.model.name }}-shadow
+  labels:
+    app: {{ .Release.Name }}-{{ .Values.model.name }}
+    version: shadow
+spec:
+  selector:
+    app: {{ .Release.Name }}-{{ .Values.model.name }}
+    version: shadow
+  ports:
+    - port: {{ .Values.model.port }}
+      targetPort: {{ .Values.model.port }}
+{{- end }}
+
