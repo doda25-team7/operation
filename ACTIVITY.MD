@@ -66,8 +66,13 @@ Further progression with the monitoring setup using prometheus. Also worked on i
 
 - Tobias: https://github.com/doda25-team7/app-service/pull/11
 Added 2 extra metrics to MetricController.java
+
 ### Week Q2.8 (Jan 12 - )
-Francisco - Done some deeper istio documentation and working on merging and updating shadow releases of the Model- was done by Renyi but it conflicts a lot with current main setup. Will try to rework it, add documentation as well. https://github.com/doda25-team7/operation/pull/11, also finished https://github.com/doda25-team7/operation/pull/7
+- Francisco - Done some deeper istio documentation and working on merging and updating shadow releases of the Model- was done by Renyi but it conflicts a lot with current main setup. Will try to rework it, add documentation as well. https://github.com/doda25-team7/operation/pull/11, also finished https://github.com/doda25-team7/operation/pull/7
+
+- Tobias: https://github.com/doda25-team7/operation/commit/3c85d86864f6ee62dc08a234620d683c9cbb45a5
+Added beginning draft of the deployment documentation.
+
 ### Week Q2.9 (Jan 19 - )
 
 ### Week Q2.10 (Jan 26 - )
