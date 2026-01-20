@@ -42,7 +42,8 @@ Also made a beginning making sure the code adheres to the A2 tips in 1.6: local 
 
 ### Week Q2.5 (Dec 8 - )
 - Francisco - working on migrating from docker-compose to kubernetes. Changed the Vagrat Ips to mach the virtual box allowed routing. 
-https://github.com/doda25-team7/infrastructure/pull/8
+https://github.com/doda25-team7/infrastructure/pull/8 -> Part 1 of assignemnt 3
+
 - Tess - looked into the security implications of the Github Action version manager, and as a response to the recommendation, properly pinned the external personal repo we used in model-service https://github.com/doda25-team7/model-service/pull/6
 
 - Tobias: https://github.com/doda25-team7/operation/pull/3
@@ -53,7 +54,7 @@ Worked on enabling monitoring using prometheus. Also finished up local provision
 
 - Renyi Working on alerting of assignment 3. https://github.com/doda25-team7/operation/pull/5
 
-- Francisco - Working on Istio setup - Currently waiting on Helm Chart setup to be finished
+- Francisco - Working on Istio setup - this week converted helm chart setup to work with multiple operating systems https://github.com/doda25-team7/operation/pull/7
 
 - Tobias: https://github.com/doda25-team7/operation/pull/3
 Further progression with the monitoring setup using prometheus. Also worked on improving the helm chart and adding a MonitorController.java in app-service.
@@ -66,7 +67,7 @@ Further progression with the monitoring setup using prometheus. Also worked on i
 - Tobias: https://github.com/doda25-team7/app-service/pull/11
 Added 2 extra metrics to MetricController.java
 ### Week Q2.8 (Jan 12 - )
-
+Francisco - Done some deeper istio documentation and working on merging and updating shadow releases of the Model- was done by Renyi but it conflicts a lot with current main setup. Will try to rework it, add documentation as well. https://github.com/doda25-team7/operation/pull/11, also finished https://github.com/doda25-team7/operation/pull/7
 ### Week Q2.9 (Jan 19 - )
 
 ### Week Q2.10 (Jan 26 - )
