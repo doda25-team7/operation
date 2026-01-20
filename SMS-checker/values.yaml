@@ -25,11 +25,18 @@ istio:
 
 canary:
   enabled: true
-  appImage: ghcr.io/doda25-team7/app-service:latest # To be changed when canary app image is deployed
+  appImage: ghcr.io/doda25-team7/app-service:latest
   modelImage: ghcr.io/doda25-team7/model-service:latest
   replicaCount: 1
   stableWeight: 90
   canaryWeight: 10
+
+shadow:
+  enabled: true
+  modelImage: ghcr.io/doda25-team7/model-service:latest
+  modelUrl: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
+  replicaCount: 1
+  mirrorPercentage: 100
 
   className: nginx
 

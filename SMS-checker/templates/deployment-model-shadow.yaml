@@ -1,0 +1,37 @@
+{{- if .Values.shadow.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.model.name }}-shadow
+  labels:
+    app: {{ .Values.model.name }}
+    version: shadow
+spec:
+  replicas: {{ .Values.shadow.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .Values.model.name }}
+      version: shadow
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.model.name }}
+        version: shadow
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: {{ .Values.model.name }}
+          image: {{ .Values.shadow.modelImage | default .Values.model.image }}
+          ports:
+            - containerPort: {{ .Values.model.port }}
+          env:
+            - name: MODEL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: MODEL_PORT
+            - name: MODEL_URL
+              value: "{{ .Values.shadow.modelUrl | default .Values.model.model_url }}"
+{{- end }}
+
