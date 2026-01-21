@@ -56,5 +56,10 @@ kube-prometheus-stack:
         enabled: true
         label: grafana_dashboard
         searchNamespace: ALL
+  prometheusOperator:
+    admissionWebhooks:
+      patch:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
   alertmanager:
     enabled: true
