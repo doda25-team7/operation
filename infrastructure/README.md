@@ -58,7 +58,7 @@ vagrant up
 ### Finalizing the Cluster Setup
 
 ```bash
-ansible-playbook -i ansible/inventory.ini ansible/finalization.yaml
+ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
 ```
 ### If KVM is conflicting temporarily disable it 
 ```bash
