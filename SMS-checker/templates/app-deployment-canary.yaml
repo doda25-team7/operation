@@ -10,12 +10,12 @@ spec:
   replicas: {{ .Values.canary.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Values.app.name }}
+      app: {{ .Release.Name }}-{{ .Values.app.name }}
       version: canary
   template:
     metadata:
       labels:
-        app: {{ .Values.app.name }}
+        app: {{ .Release.Name }}-{{ .Values.app.name }}
         version: canary
       annotations:
         sidecar.istio.io/inject: "true"
