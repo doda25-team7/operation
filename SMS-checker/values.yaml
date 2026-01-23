@@ -4,6 +4,7 @@ app:
   tag: latest
   port: 8080
   host: doda.local
+  canaryHost: canary.doda.local
   replicaCount: 1
 
 model:
@@ -14,8 +15,8 @@ model:
   replicaCount: 1
 
 ingress:
-  enabled: true
-  host: doda.local
+  host: doda.local # Configuration for istio
+  className: nginx # configuration for non-virtual ingress controllers
 
 replicaCount: 1
 
