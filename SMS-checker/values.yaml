@@ -39,11 +39,21 @@ monitoring:
 
 kube-prometheus-stack:
   prometheus:
+    ingress:
+      enabled: true
+      hosts:
+        - prometheus.local
+      ingressClassName: nginx
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
       # serviceMonitorSelector defaults to matching release label, which is what we want.
   grafana:
     enabled: true
+    ingress:
+      enabled: true
+      hosts:
+        - grafana.local
+      ingressClassName: nginx
     sidecar:
       dashboards:
         enabled: true
