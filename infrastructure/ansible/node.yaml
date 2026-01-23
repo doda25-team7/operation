@@ -2,12 +2,37 @@
 - name: Setup Kubernetes worker node
   hosts: all
   tasks:
+
+    - name: Test if running on Vagrant
+      ansible.builtin.stat:
+        path: /vagrant
+      register: vagrant_dir
+
+    # If running on Vagrant, add ctrl node to ARP table to avoid delays. Sometimes something else grabs the ARP entry for ctrl. 
+    - name: Get MAC address of eth1 "ctrl"
+      delegate_to: "ctrl" 
+      ansible.builtin.command: cat /sys/class/net/eth1/address
+      register: mac_address
+      when: vagrant_dir.stat.exists
+
+    - name: Add ctrl node to ARP table
+      ansible.builtin.command: ip neigh replace 192.168.56.100 lladdr {{ mac_address.stdout }} dev eth1 nud permanent
+      become: yes
+      when: vagrant_dir.stat.exists
+
+    - name: Check if node is already in Kubernetes cluster
+      ansible.builtin.stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf_exists
+
     - name: Generate join command
       delegate_to: "ctrl"
       ansible.builtin.command: kubeadm token create --print-join-command
       register: join_command
+      when: not kubelet_conf_exists.stat.exists
 
     - name: Run join command
       become: true
       ansible.builtin.shell:
         cmd: "{{ join_command.stdout }}"
+      when: not kubelet_conf_exists.stat.exists
