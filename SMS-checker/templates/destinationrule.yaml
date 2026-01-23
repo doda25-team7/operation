@@ -2,10 +2,10 @@
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: {{ .Values.app.name }}-destinationrule
+  name: {{ .Release.Name }}-{{ .Values.app.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  host: {{ .Values.app.name }}
+  host: {{ .Release.Name }}-{{ .Values.app.name }}
   subsets:
     - name: stable
       labels:
@@ -17,10 +17,10 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: {{ .Values.model.name }}-destinationrule
+  name: {{ .Release.Name }}-{{ .Values.model.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  host: {{ .Values.model.name }}
+  host: {{ .Release.Name }}-{{ .Values.model.name }}
   subsets:
     - name: stable
       labels:
