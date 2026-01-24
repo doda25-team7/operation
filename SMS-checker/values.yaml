@@ -1,7 +1,6 @@
 app:
   name: app-service
-  image: ghcr.io/doda25-team7/app-service:latest
-  tag: latest
+  image: ghcr.io/doda25-team7/app-service:0.0.12-SNAPSHOT
   port: 8080
   host: doda.local
   canaryHost: canary.doda.local
@@ -9,7 +8,7 @@ app:
 
 model:
   name: model-service
-  image: ghcr.io/doda25-team7/model-service:latest
+  image: ghcr.io/doda25-team7/model-service:0.0.12
   port: 8081
   model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
   replicaCount: 1
@@ -26,8 +25,8 @@ istio:
 
 canary:
   enabled: true
-  appImage: ghcr.io/doda25-team7/app-service:latest # To be changed when canary app image is deployed
-  modelImage: ghcr.io/doda25-team7/model-service:latest
+  appImage: ghcr.io/doda25-team7/app-service:0.0.12-SNAPSHOT # To be changed when canary app image is deployed
+  modelImage: ghcr.io/doda25-team7/model-service:0.0.12
   replicaCount: 1
   stableWeight: 90
   canaryWeight: 10
