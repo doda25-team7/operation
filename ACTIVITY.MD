@@ -87,6 +87,7 @@ Added beginning draft of the deployment documentation.
 
 ### Week Q2.9 (Jan 19 - )
 - Maciej: Made the extension proposal: https://github.com/doda25-team7/operation/pull/12
+- Francisco - Finishing last week mr, due to conflicts the team reached conclusion that it was better to separate it on a new mr https://github.com/doda25-team7/operation/pull/17. Adding doc and working on final testing.
 
 - Tess: Nasty bug somewhere was causing multiple responses to ARP requests, leading to the join command failing when provisioning. Fixed in https://github.com/doda25-team7/operation/pull/13
 ### Week Q2.10 (Jan 26 - )
