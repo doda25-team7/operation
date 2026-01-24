@@ -7,3 +7,6 @@ data:
   APP_PORT: "{{ .Values.app.port }}"
   MODEL_PORT: "{{ .Values.model.port }}"
   MODEL_URL: "{{ .Values.model.model_url }}"
+  {{- if .Values.shadow.enabled }}
+  SHADOW_MODEL_URL: "{{ .Values.shadow.modelUrl | default .Values.model.model_url }}"
+  {{- end }}
