@@ -143,13 +143,31 @@ This extension is implementable as the next assignment with the following steps:
 *   **Codified Reliability:** SLOs (Service Level Objectives) are defined in Git (`canary.yaml`), not in a wiki or dashboard.
 
 ### Measuring the Effect (Experiment Design)
-To prove the design works, we will run the following experiment:
 
-1.  **Baseline:** Deploy a version of `app-service` that introduces a `Thread.sleep(2000)` (2 seconds latency).
-    *   *Old Way:* Deploy. Watch Dashboards. Measure time until human notices and runs `helm rollback`. (Expected: ~2-5 mins).
-2.  **Test:** Deploy the same "slow" version with Flagger enabled.
-    *   *New Way:* Flagger detects `latency > 500ms` during the 5% traffic phase.
-    *   *Measurement:* Flagger immediately reverts traffic. (Expected: < 1 min, automated).
+To objectively measure the improvement, we will conduct a controlled experiment comparing the "Manual" vs "Automated" approach:
+
+**Experiment Setup:**
+*   **Artifact:** A "Faulty Version" (v2-bad) of `app-service` that introduces a synthetic latency regression (e.g., `Thread.sleep(2000)`).
+*   **Metric:** **Time to Rollback (TTR)** - measured from the moment `helm upgrade` finishes to the moment traffic is fully reverted to the stable version.
+
+**Scenario A: Baseline (Current Process)**
+1.  Engineer deploys `v2-bad`.
+2.  Engineer manually starts `while true; do curl ...` loop.
+3.  Engineer watches Grafana.
+4.  Engineer notices latency spike (~1-2 mins after data aggregation).
+5.  Engineer executes `helm rollback`.
+6.  *Expected TTR:* **3-5+ minutes** (highly variable based on human attention).
+
+**Scenario B: Test (With Flagger Extension)**
+1.  Engineer deploys `v2-bad` (triggering Flagger).
+2.  Flagger automatically starts `k6` load test (generating immediate, consistent traffic).
+3.  Flagger queries Prometheus at `t=60s`.
+4.  Flagger detects `p99 > 500ms` (threshold violation).
+5.  Flagger automatically halts promotion and reverts routing.
+6.  *Expected TTR:* **< 2 minutes** (Bounded, consistent, and fully automated).
+
+**Success Criteria:**
+The extension is considered successful if Scenario B yields a **TTR < 2 minutes** with **0 human intervention** during the verification phase.
 
 ---
 
@@ -158,3 +176,15 @@ To prove the design works, we will run the following experiment:
 *   **Resource Usage:** During deployment, both V1 and V2 run simultaneously, temporarily doubling resource consumption for that service.
 
 ---
+
+
+## 6. References
+
+1.  **Flagger Documentation**:  
+    [https://docs.flagger.app/](https://docs.flagger.app/)
+
+2.  **Google SRE Book**: 
+    [https://sre.google/sre-book/release-engineering/#canary-analysis](https://sre.google/sre-book/release-engineering/#canary-analysis)
+
+3.  **Humble, J., & Farley, D. (2010)**. *Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation*. Addison-Wesley Professional.
+    [https://unidel.edu.ng/focelibrary/books/Continuous%20Delivery%20Reliable%20Software%20Releases%20through%20Build,%20Test,%20and%20Deployment%20Automation%20by%20Jez%20Humble,%20David%20Farley%20(z-lib.org).pdf](https://unidel.edu.ng/focelibrary/books/Continuous%20Delivery%20Reliable%20Software%20Releases%20through%20Build,%20Test,%20and%20Deployment%20Automation%20by%20Jez%20Humble,%20David%20Farley%20(z-lib.org).pdf)
