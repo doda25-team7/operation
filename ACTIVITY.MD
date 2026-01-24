@@ -73,6 +73,8 @@ Added 2 extra metrics to MetricController.java
 
 - Maciej: Finished implementation of grafana dashboards: https://github.com/doda25-team7/operation/pull/6/files 
 
+- Tess: Cleanup of the operation repository, and updating of various readmes: https://github.com/doda25-team7/operation/pull/8
+
 ### Week Q2.8 (Jan 12 - )
 - Francisco - Done some deeper istio documentation and working on merging and updating shadow releases of the Model- was done by Renyi but it conflicts a lot with current main setup. Will try to rework it, add documentation as well. https://github.com/doda25-team7/operation/pull/11, also finished https://github.com/doda25-team7/operation/pull/7
 
@@ -81,7 +83,10 @@ Added beginning draft of the deployment documentation.
 
 - Maciej: Made necessary changes to the grafana dashboards to work with the new istio setup: https://github.com/doda25-team7/operation/pull/10. Fixed a small issue with Prometheus metrics: https://github.com/doda25-team7/app-service/pull/12
 
+- Tess:  Working to get Istio to function fully and correctly, while also updating various vagrant configuraiton things: https://github.com/doda25-team7/operation/pull/15
+
 ### Week Q2.9 (Jan 19 - )
 - Maciej: Made the extension proposal: https://github.com/doda25-team7/operation/pull/12
 
+- Tess: Nasty bug somewhere was causing multiple responses to ARP requests, leading to the join command failing when provisioning. Fixed in https://github.com/doda25-team7/operation/pull/13
 ### Week Q2.10 (Jan 26 - )

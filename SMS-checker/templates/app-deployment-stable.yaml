@@ -1,11 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.app.name }}
+  name: {{ .Release.Name }}-{{ .Values.app.name }}-stable
   labels:
     app: {{ .Release.Name }}-{{ .Values.app.name }}
+    version: stable
 spec:
-  replicas: {{ .Values.app.replicaCount }}
+  replicas: {{ .Values.canary.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Values.app.name }}
