@@ -109,7 +109,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "rate(index_requests_total[1m])",
+          "expr": "sum(rate(index_requests_total[1m]))",
           "legendFormat": "index",
           "range": true,
           "refId": "A"
@@ -120,7 +120,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "rate(predict_requests_total[1m])",
+          "expr": "sum(rate(predict_requests_total[1m]))",
           "legendFormat": "predict",
           "range": true,
           "refId": "B"
@@ -177,7 +177,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "predict_requests_total / index_requests_total",
+          "expr": "sum(predict_requests_total) / sum(index_requests_total)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -425,7 +425,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "rate(prediction_latency_seconds_sum[1m]) / rate(prediction_latency_seconds_count[1m])",
+          "expr": "sum(rate(prediction_latency_seconds_sum[1m])) / sum(rate(prediction_latency_seconds_count[1m]))",
           "legendFormat": "avg latency",
           "range": true,
           "refId": "A"
