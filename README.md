@@ -3,7 +3,6 @@ This repository contains the orchestration code of a dummy SMS spam classifier. 
 
 The repository, organization and the accompanying releases are used to learn about DevOps practices by student group [doda25-team7](https://github.com/doda25-team7). The work was done in the context of the course [DevOps for Distribued Apps (CS4295)](https://studyguide.tudelft.nl/courses/study-guide/educations/14776) at the TU Delft. The groups organization page links to the associated repositories. 
 
-This repository contains the configuration required to run and operate all services developed,
 
 ## Project Repositories
 
@@ -35,13 +34,13 @@ The following repositories are used in this project:
   Defines the Helm Chart to deploy SMS-checker to a Kubernetes cluster. 
 
 - **`.ACTIVITY.MD`**
-  Contains a course-related activity record to show that the coursework was divided appropriately. 
+  Contains a course-related activity record to show that the coursework was divided appropriately, and weekly contributions where made. 
 
 ---
 
 ## Getting Started using Docker Compose 
 
-For development purposes a Docker Compose file describing the container setup have been included. To use Docker Compose, a modern version of Docker should to be installed. To configure the Docker deployment, change the config in the .env file. 
+For development purposes a Docker Compose file describing the container setup have been included. To use Docker Compose, a modern version of Docker should to be installed. Configuration of the Docker deployment is done in the .env file. 
 
 With Docker installed the containers can be started up using:
 ```bash
@@ -73,26 +72,40 @@ docker compose down --rmi all
 ```
 ## Getting Stated using Kubernetes
 
-To get started deploying SMS-checker to Kubernetes, a Kubernetes cluster first has to be deployed. The code that was used to create the Kubernetes cluster that SMS-checker uses, accompnied by a README.md can be find in the [infrastructure](infrastructure) folder in the root of this repository. SMS-checker has been verified to work on this Kubernetes cluster, but it should also work on any other deployment.
+To get started deploying SMS-checker to Kubernetes, a Kubernetes cluster first has to be deployed. The code that was used to create the Kubernetes cluster that SMS-checker uses, accompnied by a README.md can be find in the [infrastructure](infrastructure) folder in the root of this repository. SMS-checker has been verified to work on this Kubernetes cluster and [minikube](https://github.com/kubernetes/minikube), but it should also work on any other deployment.
 
 To get started using the infrastructure configuraiton provided run the following: 
 ```bash
 cd infrastructure
-vagrant up
+vagrant up --provision
 ansible-playbook --inventory .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ./ansible/finalization.yaml 
 ```
-More information on deploying the Kubernetes cluser can be found in infrastructure/README.md.
+More information on deploying and debugging the Kubernetes cluser can be found in infrastructure/README.md.
 
 ## Deploying with Helm
 
 To deploy SMS-checker into a Kubernetes cluster, there is a Helm chart [SMS-checker](SMS-checker), in the root of the repository. To deploy the helm chart, using the infrastructure as described above, run the following code from the infrastructure folder:
+
 ```bash
 vagrant ssh ctrl
+cd /operation/SMS-checker
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm dependency update
 cd /operation
-helm upgrade --install SMS-checker SMS-checker --namespace prod-SMS-checker --create-namespace
+helm upgrade --install sms-checker ./SMS-checker --namespace sms-checker --create-namespace
 ```
 
-The deployment acts as a complete stack, including **Prometheus** for metrics collection and **Grafana** for visualization.
+Because the routing of the HTTP packets is based on the host header the following should be added into the ```/etc/hosts``` or ```%WINDIR%\system32\drivers\etc\hosts```:
+```
+192.168.56.91  doda.local
+192.168.56.90  canary.doda.local
+192.168.56.90  stable.doda.local   // TODO make this domain functional
+192.168.56.90  grafana.local
+192.168.56.90  prometheus.local
+192.168.56.90  dashboard.local
+```
+
+This deployment acts as a complete stack, including **Prometheus** for metrics collection and **Grafana** for visualization, accessible on ```prometheus.local``` and ```grafana.local``` accordingly. The Grafana instance has the default username of ```admin``` and password of ```prom-operator```. ```stable.doda.local``` and ```canary.doda.local``` are provided for testing purposes, ```doda.local``` should automatically load balance between the two. 
 
 ### Monitoring (Prometheus & Grafana)
 
@@ -102,47 +115,19 @@ The deployment acts as a complete stack, including **Prometheus** for metrics co
     1. **SMS App Metrics**: Shows request rates, prediction ratios, and latencies.
     2. **SMS System Metrics**: Shows system resource usage.
 
-To enable prometheus based monitoring:
-```bash
-vagrant ssh ctrl
-helm repo add prom-repo https://prometheus-community.github.io/helm-charts
-helm repo update
-helm upgrade myprom prom-repo/kube-prometheus-stack --namespace monitoring --create-namespace
-```
-
-### To access Prometheus
-
-To access the Prometheus UI run the following:
-```bash
-kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus 9090:9090
-
-curl http://localhost:8080/metrics
-```
-
 ### Enabling Discord notifications
 
-To enable alerting in Discord, first enable to the alertmanager:
-```bash
-kubectl label namespace sms alertmanager-config=enabled --overwrite
-helm upgrade myprom prom-repo/kube-prometheus-stack \
-  --namespace monitoring \
-  --set alertmanager.alertmanagerSpec.alertmanagerConfigNamespaceSelector.matchLabels.alertmanager-config=enabled
-```
-Then create a webhook URL as described on [the "Intro to Webhooks" guide created by Discord](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks). To create a Kubernetes Secret to hold this URL, run this, replacing `YOUR_DISCORD_WEBHOOK_URL` with your Discord Webhook URL:
+To enable alerting in Discord, add a Discord webhook URL as described on [the "Intro to Webhooks" guide created by Discord](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) as a K8S secret. To create a K8S Secret to hold this URL, run this, replacing `YOUR_DISCORD_WEBHOOK_URL` with your Discord Webhook URL:
 ```bash
 kubectl create secret generic alertmanager-discord-webhook \
   --from-literal=webhook-url='YOUR_DISCORD_WEBHOOK_URL' \
-  --namespace prod-SMS-checker
+  --namespace sms-checker
 ```
 
 ### To access Grafana:
-1. Forward the port:
-   ```bash
-   kubectl port-forward svc/sms-stack-grafana 8080:80
-   ```
-2. Open [http://localhost:8080](http://localhost:8080).
-3. Default credentials (from `kube-prometheus-stack`): `admin` / `prom-operator` (or check secret `sms-stack-grafana`).
-4. Dashboards are automatically loaded under `Dashboards` -> `Browse`.
+1. Open [http://grafana.local](http://grafana.local).
+2. Default credentials (from `kube-prometheus-stack`): `admin` / `prom-operator` (or check secret `sms-stack-grafana`).
+3. Dashboards are automatically loaded under `Dashboards` -> `Browse`.
 
 ### Manual Dashboard Import
 Sometimes the dashboards are not imported automatically, if you need to import dashboards manually run the following:
