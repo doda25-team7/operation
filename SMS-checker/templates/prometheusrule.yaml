@@ -11,7 +11,7 @@ spec:
       interval: 30s
       rules:
         - alert: HighRequestRate
-          expr: sum(rate(frontend_requests_total[1m])) * 60 > 15
+          expr: sum(rate(ui_requests_total[1m])) * 60 > 15
           for: 2m
           labels:
             severity: warning
