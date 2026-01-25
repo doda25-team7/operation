@@ -32,6 +32,13 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
 
+    - name: Ensure kubeconfig uses controller IP instead of localhost
+      become: true
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_facts['env']['HOME'] }}/.kube/config"
+        regexp: '^ *server:'
+        line: '    server: https://192.168.56.100:6443'
+
     - name: Copy admin.conf to shared folder for host usage
       ansible.builtin.copy:
         remote_src: true
