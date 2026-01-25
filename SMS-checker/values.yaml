@@ -35,7 +35,6 @@ canary:
 
 monitoring:
   enabled: true
-  prometheusRelease: "" # No longer needed as we use Release.Name, but keeping for compatibility if referenced elsewhere
 
 kube-prometheus-stack:
   prometheus:
