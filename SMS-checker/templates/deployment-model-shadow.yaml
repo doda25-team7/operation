@@ -19,6 +19,13 @@ spec:
         version: shadow
       annotations:
         sidecar.istio.io/inject: "true"
+        sidecar.istio.io/componentLogLevel: "ext_authz:debug,filter:debug"
+        proxy.istio.io/config: |
+          proxyStatsMatcher:
+            inclusionPrefixes:
+              - "cluster"
+              - "http"
+          drainDuration: 45s
     spec:
       containers:
         - name: {{ .Values.model.name }}-shadow
@@ -34,5 +41,9 @@ spec:
                   key: MODEL_PORT
             - name: MODEL_URL
               value: "{{ .Values.shadow.modelUrl | default .Values.model.model_url }}"
+            - name: LOG_LEVEL
+              value: "DEBUG"
+            - name: SHADOW_MODE
+              value: "true"
 {{- end }}
 

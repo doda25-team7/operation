@@ -41,6 +41,7 @@ shadow:
   modelUrl: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.2/model.joblib  # New model version URL
   replicaCount: 1
   mirrorPercentage: 100.0  # Percentage of traffic to mirror (0-100)
+  logLevel: DEBUG  # Log level for shadow pod (DEBUG, INFO, WARNING, ERROR)
 
 monitoring:
   enabled: true

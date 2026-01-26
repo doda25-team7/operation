@@ -6,15 +6,15 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   hosts:
-    - "{{ .Release.Name }}-{{ .Values.model.name }}"
+    - {{ .Release.Name }}-{{ .Values.model.name }}
   http:
     - route:
         - destination:
-            host: "{{ .Release.Name }}-{{ .Values.model.name }}"
+            host: {{ .Release.Name }}-{{ .Values.model.name }}
             port:
               number: {{ .Values.model.port }}
       mirror:
-        host: "{{ .Release.Name }}-{{ .Values.model.name }}-shadow"
+        host: {{ .Release.Name }}-{{ .Values.model.name }}-shadow
         port:
           number: {{ .Values.model.port }}
       mirrorPercentage:
