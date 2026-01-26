@@ -1,4 +1,4 @@
-{{- if and .Values.istio.enabled .Values.canary.enabled }}
+{{- if and .Values.istio.enabled .Values.shadow.enabled }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -6,23 +6,18 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   hosts:
-    - {{ .Release.Name }}-{{ .Values.model.name }}
+    - "{{ .Release.Name }}-{{ .Values.model.name }}"
   http:
-    - match:
-        - sourceLabels:
-            version: canary
-      route:
-        - destination:
-            host: {{ .Release.Name }}-{{ .Values.model.name }}
-            subset: canary
-            port:
-              number: {{ .Values.model.port }}
-
     - route:
         - destination:
-            host: {{ .Release.Name }}-{{ .Values.model.name }}
-            subset: stable
+            host: "{{ .Release.Name }}-{{ .Values.model.name }}"
             port:
               number: {{ .Values.model.port }}
+      mirror:
+        host: "{{ .Release.Name }}-{{ .Values.model.name }}-shadow"
+        port:
+          number: {{ .Values.model.port }}
+      mirrorPercentage:
+        value: {{ .Values.shadow.mirrorPercentage | default 100.0 }}
 {{- end }}
 

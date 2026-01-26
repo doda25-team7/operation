@@ -13,4 +13,36 @@ spec:
     - port: http
       path: /metrics
       interval: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-model-monitor
+  labels:
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Values.model.name }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 10s
+{{- if .Values.shadow.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-model-shadow-monitor
+  labels:
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Values.model.name }}-shadow
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 10s
+{{- end }}
 {{- end }}

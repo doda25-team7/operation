@@ -28,5 +28,19 @@ spec:
     - name: canary
       labels:
         version: canary
+{{- if .Values.shadow.enabled }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.model.name }}-shadow
+  namespace: {{ .Release.Namespace }}
+spec:
+  host: {{ .Release.Name }}-{{ .Values.model.name }}-shadow
+  subsets:
+    - name: shadow
+      labels:
+        version: shadow
+{{- end }}
 {{- end }}
 

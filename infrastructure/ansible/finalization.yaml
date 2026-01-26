@@ -315,7 +315,11 @@
       when: istioctl_working
       failed_when: false
 
+    - name: Enable Istio sidecar injection for default namespace
+      ansible.builtin.command: kubectl label namespace default istio-injection=enabled --overwrite
+      when: istioctl_working
+
     - name: Show Istio installation success
       ansible.builtin.debug:
-        msg: "Istio installed successfully! Istio ingress gateway will be available at 192.168.56.91"
+        msg: "Istio installed successfully! Istio ingress gateway will be available at 192.168.56.91. Sidecar injection enabled for default namespace."
       when: istioctl_working | bool
