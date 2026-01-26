@@ -1,0 +1,1 @@
+This folder is shared between all the guests and mounted into ```/mnt/shared```, and into one of the deployments (app-service-stable). This to illustrate the ```hostPath``` functionality of K8S and VirtualBox shared folders. 

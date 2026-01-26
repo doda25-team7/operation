@@ -1,6 +1,5 @@
-# Downloaded from https://github.com/flannel-io/flannel/blob/dd2af12ab288a080835050c2aebda23ce93584d9/Documentation/kube-flannel.yml
-# no edits where made
-
+# Downloaded from https://github.com/flannel-io/flannel/blob/v0.26.7/Documentation/kube-flannel.yml
+# The argument --iface=eth1 was added to the flanneld to allow it to understand our host-only networking setup
 ---
 kind: Namespace
 apiVersion: v1
@@ -136,7 +135,7 @@ spec:
       serviceAccountName: flannel
       initContainers:
       - name: install-cni-plugin
-        image: ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1
+        image: ghcr.io/flannel-io/flannel-cni-plugin:v1.6.2-flannel1
         command:
         - cp
         args:
@@ -147,7 +146,7 @@ spec:
         - name: cni-plugin
           mountPath: /opt/cni/bin
       - name: install-cni
-        image: ghcr.io/flannel-io/flannel:v0.27.4
+        image: ghcr.io/flannel-io/flannel:v0.26.7
         command:
         - cp
         args:
@@ -161,7 +160,7 @@ spec:
           mountPath: /etc/kube-flannel/
       containers:
       - name: kube-flannel
-        image: ghcr.io/flannel-io/flannel:v0.27.4
+        image: ghcr.io/flannel-io/flannel:v0.26.7
         command:
         - /opt/bin/flanneld
         args:
@@ -187,8 +186,6 @@ spec:
               fieldPath: metadata.namespace
         - name: EVENT_QUEUE_DEPTH
           value: "5000"
-        - name: CONT_WHEN_CACHE_NOT_READY
-          value: "false"
         volumeMounts:
         - name: run
           mountPath: /run/flannel

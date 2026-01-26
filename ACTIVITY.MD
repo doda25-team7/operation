@@ -49,6 +49,8 @@ https://github.com/doda25-team7/infrastructure/pull/8 -> Part 1 of assignemnt 3
 - Tobias: https://github.com/doda25-team7/operation/pull/3
 Worked on enabling monitoring using prometheus. Also finished up local provisioning of the ansible playbooks.
 
+- Maciej: No new taks done this week as previous parts of assignment 3 were not finished. Made up for the contribution during christmas/winter break
+
 ### Week Q2.6 (Dec 15 - )
 - Tess - Worked on the Ansible and Vagrant configuration and the Helm chart https://github.com/doda25-team7/operation/pull/4
 
@@ -59,6 +61,8 @@ Worked on enabling monitoring using prometheus. Also finished up local provision
 - Tobias: https://github.com/doda25-team7/operation/pull/3
 Further progression with the monitoring setup using prometheus. Also worked on improving the helm chart and adding a MonitorController.java in app-service.
 
+- Maciej: Started working on the Grafana dashboards for A3: https://github.com/doda25-team7/app-service/pull/8, fixed a problem with the sms model crashing: https://github.com/doda25-team7/model-service/pull/8. Additionally gave reviews for teammates.
+
 ### Week Q2.7 (Jan 5 - )
 - Francisco - Working on Traffic Management - https://github.com/doda25-team7/operation/pull/7
 
@@ -67,12 +71,22 @@ Further progression with the monitoring setup using prometheus. Also worked on i
 - Tobias: https://github.com/doda25-team7/app-service/pull/11
 Added 2 extra metrics to MetricController.java
 
+- Maciej: Finished implementation of grafana dashboards: https://github.com/doda25-team7/operation/pull/6/files 
+
+- Tess: Cleanup of the operation repository, and updating of various readmes: https://github.com/doda25-team7/operation/pull/8
+
 ### Week Q2.8 (Jan 12 - )
 - Francisco - Done some deeper istio documentation and working on merging and updating shadow releases of the Model- was done by Renyi but it conflicts a lot with current main setup. Will try to rework it, add documentation as well. https://github.com/doda25-team7/operation/pull/11, also finished https://github.com/doda25-team7/operation/pull/7
 
 - Tobias: https://github.com/doda25-team7/operation/commit/3c85d86864f6ee62dc08a234620d683c9cbb45a5
 Added beginning draft of the deployment documentation.
 
-### Week Q2.9 (Jan 19 - )
+- Maciej: Made necessary changes to the grafana dashboards to work with the new istio setup: https://github.com/doda25-team7/operation/pull/10. Fixed a small issue with Prometheus metrics: https://github.com/doda25-team7/app-service/pull/12
 
+- Tess:  Working to get Istio to function fully and correctly, while also updating various vagrant configuraiton things: https://github.com/doda25-team7/operation/pull/15
+
+### Week Q2.9 (Jan 19 - )
+- Maciej: Made the extension proposal: https://github.com/doda25-team7/operation/pull/12
+
+- Tess: Nasty bug somewhere was causing multiple responses to ARP requests, leading to the join command failing when provisioning. Fixed in https://github.com/doda25-team7/operation/pull/13
 ### Week Q2.10 (Jan 26 - )

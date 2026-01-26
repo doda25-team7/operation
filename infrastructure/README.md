@@ -21,10 +21,11 @@ sudo apt update
 sudo apt install virtualbox
 ```
 
-## Test installations
+## Test if tooling is installed correctly
 ```bash
-vagrant --version
-vboxmanage --version
+vagrant --version       # Vagrant 2.4.9
+vboxmanage --version    # 7.0.16_Ubuntur162802
+ansible --version       # 
 ```
 
 ## Configuration
@@ -294,9 +295,11 @@ Copy the entire token that is displayed (it will be a long string).
    vagrant destroy -f
    ```
 
-2. Open VirtualBox GUI
-3. Go to network tab
-4. Under "Host-only Networks" remove the network corresponding to the destroyed VMs (Usually it's vboxnet0)
+2. Remove the vbox host only adapter using, the following command or from the Virtualbox GUI.
+   ```bash
+   vboxmanage hostonlyif remove vboxnet0
+   ```
+
 
 5. Start up VMs
    ```bash
