@@ -95,5 +95,6 @@ Added beginning draft of the deployment documentation.
 Updated and fixed Active user metric to now use a heartbeat. Made it so host-based kubectl can communicate with the control plane. Made sure that in-class exercises of kubernetes and istio can be deployed and are functional.
 
 ### Week Q2.10 (Jan 26 - )
+- Tess: Create the plan for the continues deployement: https://github.com/doda25-team7/operation/pull/19
 
 
