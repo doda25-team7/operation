@@ -19,6 +19,11 @@ spec:
       annotations:
         sidecar.istio.io/inject: "true"
     spec:
+      volumes:
+        - name: dummy-shared-volume
+          hostPath:
+            path: /mnt/shared
+            type: Directory
       containers:
         - name: {{ .Values.app.name }}
           image: {{ .Values.app.image }}
@@ -40,3 +45,6 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: APP_PORT
+          volumeMounts:
+            - name: dummy-shared-volume
+              mountPath: /app/shared

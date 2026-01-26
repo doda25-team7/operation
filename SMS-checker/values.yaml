@@ -1,21 +1,21 @@
 app:
   name: app-service
-  image: ghcr.io/doda25-team7/app-service:latest
-  tag: latest
+  image: ghcr.io/doda25-team7/app-service:0.0.12-SNAPSHOT
   port: 8080
   host: doda.local
+  canaryHost: canary.doda.local
   replicaCount: 1
 
 model:
   name: model-service
-  image: ghcr.io/doda25-team7/model-service:latest
+  image: ghcr.io/doda25-team7/model-service:0.0.12
   port: 8081
   model_url: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.1/model.joblib
   replicaCount: 1
 
 ingress:
-  enabled: true
-  host: doda.local
+  host: doda.local # Configuration for istio
+  className: nginx # configuration for non-virtual ingress controllers
 
 replicaCount: 1
 
@@ -25,8 +25,8 @@ istio:
 
 canary:
   enabled: true
-  appImage: ghcr.io/doda25-team7/app-service:latest # To be changed when canary app image is deployed
-  modelImage: ghcr.io/doda25-team7/model-service:latest
+  appImage: ghcr.io/doda25-team7/app-service:0.0.12-SNAPSHOT # To be changed when canary app image is deployed
+  modelImage: ghcr.io/doda25-team7/model-service:0.0.12
   replicaCount: 1
   stableWeight: 90
   canaryWeight: 10
@@ -37,17 +37,21 @@ canary:
 # without exposing them to users
 shadow:
   enabled: true
-  modelImage: ghcr.io/doda25-team7/model-service:latest  # New model version image
+  modelImage: ghcr.io/doda25-team7/model-service:0.0.12  # New model version image
   modelUrl: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.2/model.joblib  # New model version URL
   replicaCount: 1
   mirrorPercentage: 100.0  # Percentage of traffic to mirror (0-100)
 
 monitoring:
   enabled: true
-  prometheusRelease: "" # No longer needed as we use Release.Name, but keeping for compatibility if referenced elsewhere
 
 kube-prometheus-stack:
   prometheus:
+    ingress:
+      enabled: true
+      hosts:
+        - prometheus.local
+      ingressClassName: nginx
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMetadata:
@@ -57,6 +61,11 @@ kube-prometheus-stack:
     enabled: true
     podAnnotations:
       sidecar.istio.io/inject: "false"
+    ingress:
+      enabled: true
+      hosts:
+        - grafana.local
+      ingressClassName: nginx
     sidecar:
       dashboards:
         enabled: true
