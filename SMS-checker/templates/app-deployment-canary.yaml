@@ -26,6 +26,8 @@ spec:
           ports:
             - containerPort: {{ .Values.app.port }}
           env:
+            - name: VERSION
+              value: "canary"
             - name: MODEL_HOST
               valueFrom:
                 configMapKeyRef:

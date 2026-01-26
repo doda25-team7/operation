@@ -30,6 +30,8 @@ spec:
               name: metrics
             {{- end }}
           env:
+            - name: VERSION
+              value: "stable"
             - name: MODEL_HOST
               valueFrom:
                 configMapKeyRef:
