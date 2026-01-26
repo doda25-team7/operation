@@ -96,5 +96,5 @@ Updated and fixed Active user metric to now use a heartbeat. Made it so host-bas
 
 ### Week Q2.10 (Jan 26 - )
 - Tess: Create the plan for the continues deployement: https://github.com/doda25-team7/operation/pull/19
-
+- Francisco: Finished the PR in another file: https://github.com/doda25-team7/operation/pull/17
 
