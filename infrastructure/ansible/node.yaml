@@ -15,6 +15,7 @@
       register: mac_address
       when: vagrant_dir.stat.exists
 
+
     - name: Add ctrl node to ARP table
       ansible.builtin.command: ip neigh replace 192.168.56.100 lladdr {{ mac_address.stdout }} dev eth1 nud permanent
       become: yes
