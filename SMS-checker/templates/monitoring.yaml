@@ -45,4 +45,21 @@ spec:
       path: /metrics
       interval: 10s
 {{- end }}
+{{- if .Values.canary.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-app-canary-monitor
+  labels:
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Values.app.name }}-canary
+  endpoints: 
+    - port: http
+      path: /metrics
+      interval: 10s
+{{- end }}
 {{- end }}
