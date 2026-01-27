@@ -76,7 +76,7 @@ To get started deploying SMS-checker to Kubernetes, a Kubernetes cluster first h
 
 To get started using the infrastructure configuraiton provided run the following:
 ```bash
-cd infrastructure
+cd operation/infrastructure
 vagrant up --provision
 ansible-playbook --inventory .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ./ansible/finalization.yaml 
 ```
