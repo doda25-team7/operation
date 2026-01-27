@@ -106,9 +106,8 @@ Bucket boundaries used:
 Source:
 - `MetricsController.java`
 
----
 
-##### Alertmanager configuration (Discord notifications)
+#### Alertmanager configuration (Discord notifications)
 Alert notifications are handled using a custom **AlertmanagerConfig** resource:
 
 - Kind: `AlertmanagerConfig`
@@ -153,6 +152,7 @@ A Prometheus alert rule is defined to detect unusually high traffic on the appli
 - alert: HighRequestRate
 expr: sum(rate(index_requests_total[1m])) * 60 > 15
 for: 2m
+```
 
 The threshold of **15 requests per minute** was chosen because normal traffic to the application is low. The `for: 2m` condition ensures the alert only triggers when the increase in traffic is sustained, helping avoid alerts caused by short spikes.
 
