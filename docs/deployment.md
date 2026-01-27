@@ -1,11 +1,61 @@
 ### Deployment Structure and Data Flow
 
+## Index
+
+
+1. [Overview](#1-overview)
+2. [Provisioning](#2-provisioning)
+3. [Infrastructure](#3-infrastructure)
+- [Kubernetes Cluster](#31-kubernetes-cluster)
+- [Infrastructure Add-ons](#32-infrastructure-add-ons-cluster-capabilities)
+- [Flannel](#321-flannel-cni--pod-networking)
+- [MetalLB](#322-metallb-loadbalancer-on-bare-metal)
+- [Istio](#323-istio-service-mesh)
+- [Prometheus & Alerting](#324-prometheus--alerting-metrics-collection-and-notifications)
+- [Grafana](#325-grafana-dashboards-and-visualization)
+4. [Deployment Architecture](#4-deployment-architecture)
+- [Services](#41-services)
+- [Helm Chart Structure](#42-helm-chart-structure)
+- [Request Flow](#43-request-flow)
+- [Configuration and Secrets](#44-configuration-and-secrets)
+
 ## 1. Overview
-This document describes how the SMS-checker system is deployed on Kubernetes using an Istio service mesh. It explains:
-- The deployed components and resources (Kubernetes + Istio)
-- How external traffic reaches the application
-- How canary routing is implemented (90/10 split and header-based routing)
-- How the shadow launch use case is applied.
+
+
+This document describes how the SMS-checker system is deployed on a Kubernetes cluster using Istio as a service mesh.
+
+
+The deployment consists of two main services:
+
+
+- **app-service** – the external entry point that serves the UI, exposes HTTP endpoints, and forwards prediction requests.
+- **model-service** – an internal service responsible for model inference.
+
+
+External traffic enters the cluster through **MetalLB**, which exposes the **Istio Ingress Gateway** using a LoadBalancer IP. Istio **VirtualServices** and **DestinationRules** control request routing between stable, canary, and shadow versions of both services.
+
+
+The system supports:
+
+
+- Canary releases for app-service and model-service (stable/canary subsets)
+- Header-based routing using Istio
+- Shadow launches via traffic mirroring to model-service
+- End-to-end service-to-service communication through the Istio mesh
+
+
+Observability is provided through Prometheus, Alertmanager, and Grafana, with application metrics exposed by app-service and alerts delivered via Discord.
+
+
+This document covers:
+
+
+- Cluster provisioning and infrastructure setup
+- Networking and service mesh components (Flannel, MetalLB, Istio)
+- Deployment architecture of app-service and model-service
+- Traffic flow from external users to inference and back
+- Canary and shadow deployment strategies
+- Monitoring, metrics, and alerting configuration
 
 ## 2. Provisioning
 The provisioning for the Kubernetes cluster is handled in the `operation` repository under:
