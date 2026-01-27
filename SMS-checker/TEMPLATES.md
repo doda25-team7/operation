@@ -29,7 +29,7 @@ Reference documentation for the SMS-Checker Helm chart templates.
 
 | File | Description |
 |------|-------------|
-| **gateway.yaml** | Istio Gateway. Entry point for external traffic on port 80. Accepts all hosts. |
+| **gateway.yaml** | Istio Gateway. Entry point for external traffic on port 80. |
 | **virtualservice-app.yaml** | VirtualService for app-service. Implements 90/10 canary split and header-based routing (`x-version`). |
 | **virtualservice-model.yaml** | VirtualService for model-service. Implements traffic mirroring to shadow (100% mirror). |
 | **destinationrule.yaml** | DestinationRules for app and model services. Defines subsets: `stable`, `canary`, `shadow`. |
