@@ -141,6 +141,19 @@ All alerts are routed to the Discord receiver with:
 - `repeatInterval: 12h`  
   A still-firing alert is resent every 12 hours.
 
+### Prometheus Alert Rule (High Request Rate)
+
+
+A Prometheus alert rule is defined to detect unusually high traffic on the application:
+
+
+```yaml
+- alert: HighRequestRate
+expr: sum(rate(index_requests_total[1m])) * 60 > 15
+for: 2m
+
+The threshold of **15 requests per minute** was chosen because normal traffic to the application is low. The `for: 2m` condition ensures the alert only triggers when the increase in traffic is sustained, helping avoid alerts caused by short spikes.
+
 #### 3.2.5 Grafana (Dashboards and Visualization)
 The project uses **Grafana** for observability dashboards and visualization of Prometheus metrics.
 
@@ -159,10 +172,10 @@ The Helm chart includes custom dashboards, such as:
 The deployed system consists of two services:
 
 - **app-service**  
-  The frontend
+  Entry point for users. Serves the web UI and exposes the HTTP endpoints used by the UI. It forwards prediction requests to the model-service and exposes the /metrics endpoint for Prometheus.
 
 - **model-service**  
-  The backend
+  Provides the prediction endpoint. Loads the trained model artifact and returns inference results to the app-service. It is only reachable internally (not exposed directly to the outside).
 
 Project repositories:
 - `app-service`
@@ -181,3 +194,32 @@ This Helm chart deploys:
 - Kubernetes Deployments and Services for the app-service and model-service
 - Istio Gateway, VirtualService, DestinationRules
 - monitoring stack (Prometheus/Grafana dashboards + alerting config)
+
+### 4.2.1 Request Flow
+
+
+1. External users access the system via the configured hostname.
+2. Traffic enters the cluster through the Istio Ingress Gateway.
+3. VirtualServices route requests to app-service (stable or canary).
+4. app-service forwards prediction requests to model-service.
+5. model-service performs inference and returns results to app-service.
+6. app-service returns the final response to the user.
+
+
+Prometheus continuously scrapes `/metrics` from app-service, while Istio routing rules control which service versions receive traffic.
+
+---
+
+### 4.3 Configuration and Secrets
+
+
+Configuration is externalized to keep deployments portable and secure:
+
+
+- **ConfigMaps** store non-sensitive configuration (ports, service endpoints, hostnames).
+- **Secrets** store sensitive values (for example alerting webhooks).
+
+
+Key configuration (like hostnames) is controlled via Helm values.yaml to support installation on other clusters without changing templates.
+
+---
