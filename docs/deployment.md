@@ -205,15 +205,52 @@ This Helm chart deploys:
 - Istio Gateway, VirtualService, DestinationRules
 - monitoring stack (Prometheus/Grafana dashboards + alerting config)
 
-### 4.2.1 Request Flow
+### 4.3 Request Flow
 
 
-1. External users access the system via the configured hostname.
-2. Traffic enters the cluster through the Istio Ingress Gateway.
-3. VirtualServices route requests to app-service (stable or canary).
-4. app-service forwards prediction requests to model-service.
-5. model-service performs inference and returns results to app-service.
-6. app-service returns the final response to the user.
+1. **External User**
+- Sends a request to the configured hostname (for example: `curl doda.local`), which resolves to the MetalLB IP.
+
+
+2. **MetalLB**
+- Receives the request and forwards it to the Istio Gateway service (App traffic IP).
+
+
+3. **Istio Ingress Gateway**
+- Traffic enters the cluster and the Istio mesh through the Istio Ingress Gateway.
+
+
+4. **VirtualService (sms-checker)**
+- Applies routing rules and forwards traffic to `app-service`.
+
+
+5. **DestinationRule (sms-checker-app-service)**
+- Selects the target subset:
+- Routes to **stable** app-service pods, or
+- Routes to **canary** app-service pods.
+
+
+6. **App Service Pods**
+- The selected app-service pod (with sidecar) receives the request.
+- It forwards prediction requests to the model-service VirtualService.
+
+
+7. **Model-Service VirtualService**
+- Routes traffic to model-service subsets:
+- **stable** (production inference),
+- **canary** (candidate version),
+- **shadow** (receives mirrored traffic for evaluation, if configured).
+
+
+8. **Model Service Pods**
+- The chosen model-service pod performs inference and returns results to app-service.
+
+
+9. **Response to User**
+- app-service returns the final response back through:
+- Istio Ingress Gateway
+- MetalLB
+- External User
 
 
 Prometheus continuously scrapes `/metrics` from app-service, while Istio routing rules control which service versions receive traffic.
@@ -221,7 +258,7 @@ Prometheus continuously scrapes `/metrics` from app-service, while Istio routing
 <img src="images/Networking.png" alt="Networking" width="1000">
 
 
-### 4.3 Configuration and Secrets
+### 4.4 Configuration and Secrets
 
 
 Configuration is externalized to keep deployments portable and secure:
