@@ -33,6 +33,15 @@ canary:
 
   className: nginx
 
+# Shadow deployment for model-service - mirrors traffic to evaluate new model versions
+# without exposing them to users
+shadow:
+  enabled: true
+  modelImage: ghcr.io/doda25-team7/model-service:0.0.12  # New model version image
+  modelUrl: https://github.com/doda25-team7/model-service/releases/download/model-v.0.0.2/model.joblib  # New model version URL
+  replicaCount: 1
+  mirrorPercentage: 100.0  # Percentage of traffic to mirror (0-100)
+
 monitoring:
   enabled: true
 
@@ -45,9 +54,13 @@ kube-prometheus-stack:
       ingressClassName: nginx
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
-      # serviceMonitorSelector defaults to matching release label, which is what we want.
+      podMetadata:
+        annotations:
+          sidecar.istio.io/inject: "false"
   grafana:
     enabled: true
+    podAnnotations:
+      sidecar.istio.io/inject: "false"
     ingress:
       enabled: true
       hosts:
@@ -60,3 +73,18 @@ kube-prometheus-stack:
         searchNamespace: ALL
   alertmanager:
     enabled: true
+    alertmanagerSpec:
+      podMetadata:
+        annotations:
+          sidecar.istio.io/inject: "false"
+  prometheusOperator:
+    admissionWebhooks:
+      patch:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
+  kube-state-metrics:
+    podAnnotations:
+      sidecar.istio.io/inject: "false"
+  prometheus-node-exporter:
+    podAnnotations:
+      sidecar.istio.io/inject: "false"
