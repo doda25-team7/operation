@@ -252,9 +252,6 @@ This Helm chart deploys:
 - MetalLB
 - External User
 
-
-Prometheus continuously scrapes `/metrics` from app-service, while Istio routing rules control which service versions receive traffic.
-
 <img src="images/Networking.png" alt="Networking" width="1000">
 
 
