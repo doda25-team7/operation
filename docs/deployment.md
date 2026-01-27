@@ -28,8 +28,8 @@ This document describes how the SMS-checker system is deployed on a Kubernetes c
 The deployment consists of two main services:
 
 
-- **app-service** – the external entry point that serves the UI, exposes HTTP endpoints, and forwards prediction requests.
-- **model-service** – an internal service responsible for model inference.
+- **app-service**, the external entry point that serves the UI, exposes HTTP endpoints, and forwards prediction requests.
+- **model-service**, an internal service responsible for model inference.
 
 
 External traffic enters the cluster through **MetalLB**, which exposes the **Istio Ingress Gateway** using a LoadBalancer IP. Istio **VirtualServices** and **DestinationRules** control request routing between stable, canary, and shadow versions of both services.
