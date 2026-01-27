@@ -2,10 +2,8 @@
 - name: Finalize Cluster Setup
   hosts: ctrl
   environment:
-    # do not replace with ansible_facts['env']['HOME'], ansible_facts is not yet populated
     KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
   tasks:
-    # Installing MetalLB from local manifest to satisfy offline requirements
     - name: Copy MetalLB CRDs file into VM
       ansible.builtin.copy:
         src: metallb-native.yaml
