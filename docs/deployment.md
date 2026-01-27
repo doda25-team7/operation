@@ -33,9 +33,11 @@ The infrastructure setup defines:
 
 ### Controller Node and Worker Nodes
 
-The Kubernetes cluster consists of one controller node and multiple worker nodes. The controller node manages the cluster by running the Kubernetes control plane and shared services such as Istio and the monitoring stack (Prometheus, Alertmanager, and Grafana).The worker nodes run the application workloads, including the stable and canary versions of the app-service and model-service. They receive traffic routed by Istio and handle request processing and model inference, while the controller node coordinates scheduling and overall cluster operation.
+The Kubernetes cluster consists of one controller node and multiple worker nodes. The controller node manages the cluster by running the Kubernetes control plane and shared services such as Istio and the monitoring stack (Prometheus, Alertmanager, and Grafana). 
+The worker nodes run the application workloads, including the stable and canary versions of the app-service and model-service. 
+They receive traffic routed by Istio and handle request processing and model inference, while the controller node coordinates scheduling and overall cluster operation.
 
-![Cluster](images/cluster.png)
+<img src="images/cluster.png" alt="Cluster" width="1000">
 
 ### 3.2 Infrastructure Add-ons (Cluster Capabilities)
 A Kubernetes cluster by itself provides the core functionality for deploying and managing applications (Pods, Deployments, Services, etc.), but several additional components are utilized to make the cluster usable in practice.  
@@ -216,7 +218,7 @@ This Helm chart deploys:
 
 Prometheus continuously scrapes `/metrics` from app-service, while Istio routing rules control which service versions receive traffic.
 
-![Networking](images/Networking.png)
+<img src="images/Networking.png" alt="Networking" width="600">
 
 
 ### 4.3 Configuration and Secrets
