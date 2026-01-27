@@ -106,6 +106,8 @@ Bucket boundaries used:
 Source:
 - `MetricsController.java`
 
+---
+
 ##### Alertmanager configuration (Discord notifications)
 Alert notifications are handled using a custom **AlertmanagerConfig** resource:
 
