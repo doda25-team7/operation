@@ -31,11 +31,16 @@ The infrastructure setup defines:
 - kubeconfig/admin configuration
 - networking components
 
+### Controller Node and Worker Nodes
+
+The Kubernetes cluster consists of one controller node and multiple worker nodes. The controller node manages the cluster by running the Kubernetes control plane and shared services such as Istio and the monitoring stack (Prometheus, Alertmanager, and Grafana).The worker nodes run the application workloads, including the stable and canary versions of the app-service and model-service. They receive traffic routed by Istio and handle request processing and model inference, while the controller node coordinates scheduling and overall cluster operation.
+
+![Cluster](images/cluster.png)
+
 ### 3.2 Infrastructure Add-ons (Cluster Capabilities)
 A Kubernetes cluster by itself provides the core functionality for deploying and managing applications (Pods, Deployments, Services, etc.), but several additional components are utilized to make the cluster usable in practice.  
 This project relies on the following infrastructure add-ons, which extend the cluster with networking, load balancing, observability, and service mesh capabilities.
 
----
 
 #### 3.2.1 Flannel (CNI / Pod Networking)
 **Flannel** is used as the cluster’s CNI (Container Network Interface) implementation. Kubernetes requires a CNI plugin to enable communication between Pods across nodes.
@@ -156,6 +161,8 @@ for: 2m
 
 The threshold of **15 requests per minute** was chosen because normal traffic to the application is low. The `for: 2m` condition ensures the alert only triggers when the increase in traffic is sustained, helping avoid alerts caused by short spikes.
 
+![Alert](images/alert.png)
+
 #### 3.2.5 Grafana (Dashboards and Visualization)
 The project uses **Grafana** for observability dashboards and visualization of Prometheus metrics.
 
@@ -185,7 +192,6 @@ Project repositories:
 - `lib-version`
 - `operation`
 
----
 
 ### 4.2 Helm Chart Structure
 Deployment is managed through the Helm chart located at:
@@ -210,7 +216,8 @@ This Helm chart deploys:
 
 Prometheus continuously scrapes `/metrics` from app-service, while Istio routing rules control which service versions receive traffic.
 
----
+![Networking](images/Networking.png)
+
 
 ### 4.3 Configuration and Secrets
 
@@ -224,4 +231,3 @@ Configuration is externalized to keep deployments portable and secure:
 
 Key configuration (like hostnames) is controlled via Helm values.yaml to support installation on other clusters without changing templates.
 
----
