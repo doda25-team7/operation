@@ -161,7 +161,7 @@ for: 2m
 
 The threshold of **15 requests per minute** was chosen because normal traffic to the application is low. The `for: 2m` condition ensures the alert only triggers when the increase in traffic is sustained, helping avoid alerts caused by short spikes.
 
-![Alert](images/alert.png)
+![Alert](images/alerting.png)
 
 #### 3.2.5 Grafana (Dashboards and Visualization)
 The project uses **Grafana** for observability dashboards and visualization of Prometheus metrics.
