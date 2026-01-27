@@ -7,7 +7,25 @@ metadata:
 spec:
   selector:
     app: {{ .Release.Name }}-{{ .Values.app.name }}
+    version: stable
   ports:
     - name: http
       port: {{ .Values.app.port }}
       targetPort: {{ .Values.app.port }}
+{{- if .Values.canary.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.app.name }}-canary
+  labels:
+    app: {{ .Release.Name }}-{{ .Values.app.name }}-canary
+spec:
+  selector:
+    app: {{ .Release.Name }}-{{ .Values.app.name }}
+    version: canary
+  ports:
+    - name: http
+      port: {{ .Values.app.port }}
+      targetPort: {{ .Values.app.port }}
+{{- end }}
