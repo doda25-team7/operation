@@ -88,17 +88,19 @@ To deploy SMS-checker into a Kubernetes cluster, there is a Helm chart [SMS-chec
 
 ```bash
 vagrant ssh ctrl
-cd /operation/SMS-checker
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm dependency update
 cd /operation
 helm upgrade --install sms-checker ./SMS-checker --namespace sms-checker --create-namespace
+kubectl get pods
 ```
 
 Because the routing of the HTTP packets is based on the host header the following should be added into the ```/etc/hosts``` (Linux/Mac) or ```%WINDIR%\system32\drivers\etc\hosts``` (Windows):
 ```
 192.168.56.91  doda.local
 192.168.56.90  grafana.local
+192.168.56.90  canary.doda.local
+192.168.56.90  stable.doda.local 
 192.168.56.90  prometheus.local
 192.168.56.90  dashboard.local
 ```
@@ -164,7 +166,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm dependency update
 cd /operation
 helm upgrade --install sms-checker ./SMS-checker --namespace sms-checker --create-namespace
-kubectl get pods  # Wait for all pods to show 2/2 Running
+kubectl get pods   # Wait for all pods to show 2/2 Running
 ```
 
 ### 3. Test Canary Routing (90/10 Split)
@@ -190,7 +192,7 @@ curl -sI -H "Host: doda.local" -H "x-version: stable" http://192.168.56.91/ | gr
 ### 5. Test Shadow Mirroring
 ```bash
 # Terminal 1: Watch shadow logs
-kubectl logs -f deployment/sms-checker-model-service-shadow -c istio-proxy
+kubectl logs -f deployment/sms-checker-model-service-shadow -c istio-proxy -n sms-checker
 
 # Terminal 2: Send request (shadow receives mirrored copy)
 curl -X POST http://doda.local/sms/ -H "Content-Type: application/json" -d '{"sms": "Hello this is a test message", "guess":"spam"}'
@@ -202,7 +204,7 @@ curl -X POST http://doda.local/sms/ -H "Content-Type: application/json" -d '{"sm
 
 ### 7. Cleanup
 ```bash
-helm uninstall sms-checker -n default
+helm uninstall sms-checker -n sms-checker
 exit
 cd infrastructure && vagrant destroy -f
 ```
